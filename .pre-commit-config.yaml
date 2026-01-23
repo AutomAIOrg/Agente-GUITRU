@@ -1,0 +1,27 @@
+repos:
+  # 1) Ruff (lint + format) en cada commit
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.14
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+        stages: [pre-commit]
+      - id: ruff-format
+        stages: [pre-commit]
+
+  # 2) Typecheck + tests antes de push
+  - repo: local
+    hooks:
+      - id: basedpyright
+        name: basedpyright (typecheck)
+        entry: basedpyright
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+
+      - id: pytest
+        name: pytest
+        entry: pytest
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

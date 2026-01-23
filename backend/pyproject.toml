@@ -1,0 +1,37 @@
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["app", "tests"]
+extend-select = ["I", "B", "UP"]
+force-exclude = true
+exclude = [
+  ".venv",
+  "build",
+  "dist",
+  "__pycache__",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.basedpyright]
+# Recomendado para empezar: suficientemente estricto sin ser “doloroso”.
+typeCheckingMode = "recommended"
+
+# Para que encuentre dependencias instaladas en tu venv local:
+venvPath = "."
+venv = ".venv"
+
+include = ["backend", "tests"]
+exclude = [
+  "**/__pycache__",
+  ".venv",
+  "build",
+  "dist",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
