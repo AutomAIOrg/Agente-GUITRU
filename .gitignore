@@ -1,0 +1,25 @@
+# Virtual env
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Ruff / Pytest
+.ruff_cache/
+.pytest_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
