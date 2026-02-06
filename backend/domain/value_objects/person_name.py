@@ -6,9 +6,9 @@ from queue import Empty
 class PersonName:
     """Nombre y apellidos del cliente"""
 
-    FirstName: str
-    LastName: str
+    first_name: str
+    last_name: str
 
     @property
     def is_valid(self) -> bool:
-        return self.FirstName is not Empty and self.LastName is not Empty
+        return self.first_name is not Empty and self.last_name is not Empty
