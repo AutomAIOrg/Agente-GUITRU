@@ -16,6 +16,7 @@ class Message:
     """Mensaje recibido/enviado agente"""
 
     id: str
+    user_id: str
     timestamp: datetime
     role: Role
     content: str
