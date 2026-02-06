@@ -1,9 +1,16 @@
+# Environment / Secrets
+.env
+.env.*
+*.env
+!.env.example
+
 # Virtual env
 .venv/
 
 # Python
 __pycache__/
 *.py[cod]
+*.pyo
 
 # Ruff / Pytest
 .ruff_cache/
@@ -11,6 +18,7 @@ __pycache__/
 
 # Coverage
 .coverage
+.coverage.*
 htmlcov/
 
 # Build
@@ -23,3 +31,4 @@ dist/
 Thumbs.db
 .idea/
 .vscode/
+*:Zone.Identifier
