@@ -1,6 +1,7 @@
+from functools import lru_cache
+
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from functools import lru_cache
 
 
 class SettingsDB(BaseSettings):
@@ -12,17 +13,16 @@ class SettingsDB(BaseSettings):
     DB_PASS: SecretStr = Field(default="", description="Database password")
     DB_NAME: str = Field(default="agente_guitru", description="Database name")
     DB_POOL_SIZE: int = Field(default=10, description="Database connection pool size")
-    DB_MAX_OVERFLOW: int = Field(default=20, description="Maximum overflow size for the database connection pool")
+    DB_MAX_OVERFLOW: int = Field(
+        default=20, description="Maximum overflow size for the database connection pool"
+    )
 
     model_config = SettingsConfigDict(
-        env_file=".env",
-        env_prefix="",
-        extra="ignore",
-        case_sensitive=True
+        env_file=".env", env_prefix="", extra="ignore", case_sensitive=True
     )
 
 
-@lru_cache()
+@lru_cache
 def get_settings_db() -> SettingsDB:
     """Llamada para obtener la configuración de la base de datos."""
     return SettingsDB()

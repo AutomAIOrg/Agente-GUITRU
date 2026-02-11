@@ -2,8 +2,8 @@
 Recupera el mensaje más antiguo en la cola de mensajes entrantes y lo procesa.
 """
 
-from uuid import uuid4
 from datetime import datetime
+from uuid import uuid4
 
 from ...domain.entities.message import Message, Role
 from ...domain.repositories.message_repository import MessageRepository
@@ -11,8 +11,9 @@ from ...domain.repositories.reservation_repository import ReservationRepository
 
 
 class ProcessIncomingMessageUseCase:
-
-    def __init__(self, message_repository: MessageRepository, reservation_repository: ReservationRepository):
+    def __init__(
+        self, message_repository: MessageRepository, reservation_repository: ReservationRepository
+    ):
         self.message_repository = message_repository
         self.reservation_repository = reservation_repository
 
@@ -20,7 +21,8 @@ class ProcessIncomingMessageUseCase:
         try:
             # Recuperar el mensaje más antiguo en la cola
             # message = self.message_queue.get_nowait()
-            pass  # Placeholder mientras se implementa la cola
+            message = None  # Simulación de recuperación de mensaje
+
         except Exception:
             # Manejar el caso en que no hay mensajes en la cola
             return None
@@ -35,8 +37,12 @@ class ProcessIncomingMessageUseCase:
                 role=Role.USER,
                 content=message.content,
             )
-        
-        # 2. Guardar en BBDD
-        self.message_repository.save(message_processed)
+            if not message_processed.is_valid():
+                return None
 
-        return message_processed
+            # 2. Guardar en BBDD
+            self.message_repository.save(message_processed)
+
+            return message_processed
+
+        return None

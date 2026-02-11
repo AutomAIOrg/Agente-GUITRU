@@ -4,9 +4,8 @@ Factories para generar datos de test de entidades de dominio.
 Usa Faker para generar datos realistas y variados.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
-from faker import Faker
 
 from backend.domain.entities.message import Message, Role
 from backend.domain.entities.reservation import Reservation
@@ -14,14 +13,14 @@ from backend.domain.value_objects.dates_io import DatesIO
 from backend.domain.value_objects.dni import DNI
 from backend.domain.value_objects.person_name import PersonName
 from backend.domain.value_objects.phone_number import PhoneNumber
+from faker import Faker
 
-
-fake = Faker(['es_ES', 'es_MX'])  # Español para datos más realistas
+fake = Faker(["es_ES", "es_MX"])  # Español para datos más realistas
 
 
 class MessageFactory:
     """Factory para crear instancias de Message con datos de test."""
-    
+
     @staticmethod
     def create(
         id: str | None = None,
@@ -37,21 +36,21 @@ class MessageFactory:
         return Message(
             id=id or str(uuid4()),
             user_id=user_id or str(uuid4()),
-            timestamp=timestamp or datetime.now(timezone.utc),
+            timestamp=timestamp or datetime.now(UTC),
             role=role or Role.USER,
             content=fake.sentence(nb_words=10) if content is None else content,
         )
-    
+
     @staticmethod
     def create_user_message(**kwargs) -> Message:
         """Crea un mensaje de usuario."""
         return MessageFactory.create(role=Role.USER, **kwargs)
-    
+
     @staticmethod
     def create_assistant_message(**kwargs) -> Message:
         """Crea un mensaje de asistente."""
         return MessageFactory.create(role=Role.ASSISTANT, **kwargs)
-    
+
     @staticmethod
     def create_batch(count: int = 5, **kwargs) -> list[Message]:
         """Crea múltiples mensajes."""
@@ -60,7 +59,7 @@ class MessageFactory:
 
 class ReservationFactory:
     """Factory para crear instancias de Reservation con datos de test."""
-    
+
     @staticmethod
     def create(
         id: str | None = None,
@@ -75,18 +74,17 @@ class ReservationFactory:
         """
         return Reservation(
             id=id or str(uuid4()),
-            person_name=person_name or PersonName(
-                first_name=fake.first_name(),
-                last_name=fake.last_name()
-            ),
-            dni=dni or DNI(value=fake.bothify(text='########?').upper()),
+            person_name=person_name
+            or PersonName(first_name=fake.first_name(), last_name=fake.last_name()),
+            dni=dni or DNI(value=fake.bothify(text="########?").upper()),
             phone_number=phone_number or PhoneNumber(value=fake.phone_number()),
-            dates_check_io=dates_check_io or DatesIO(
-                check_in=fake.future_date(end_date='+30d'),
-                check_out=fake.future_date(end_date='+60d')
+            dates_check_io=dates_check_io
+            or DatesIO(
+                check_in=fake.future_date(end_date="+30d"),
+                check_out=fake.future_date(end_date="+60d"),
             ),
         )
-    
+
     @staticmethod
     def create_batch(count: int = 5, **kwargs) -> list[Reservation]:
         """Crea múltiples reservas."""

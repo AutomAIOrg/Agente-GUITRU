@@ -10,16 +10,15 @@ Suite mínima y sin redundancias que cubre:
 - Volumen (batch de 50)
 """
 
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, timezone
-from sqlalchemy import text, select
-from sqlalchemy.exc import IntegrityError
-
 from backend.domain.entities.message import Role
-from backend.infrastructure.persistence.sql_message_repository import SQLMessageRepository
 from backend.infrastructure.models.messages_model import MessagesModel
+from backend.infrastructure.persistence.sql_message_repository import SQLMessageRepository
 from backend.tests.fixtures.factories import MessageFactory
-
+from sqlalchemy import select, text
+from sqlalchemy.exc import IntegrityError
 
 pytestmark = pytest.mark.asyncio
 
@@ -54,7 +53,7 @@ class TestSave:
         Reemplaza 7 tests antiguos de save básico + campos + timestamp.
         """
         repo = SQLMessageRepository(clean_db_session)
-        ts = datetime(2024, 1, 15, 10, 30, 0, tzinfo=timezone.utc)
+        ts = datetime(2024, 1, 15, 10, 30, 0, tzinfo=UTC)
 
         message = MessageFactory.create(
             id="save-all-fields",
@@ -71,7 +70,7 @@ class TestSave:
         row = result.scalar_one()
 
         assert row.user_id == "user-456"
-        assert row.timestamp.replace(tzinfo=timezone.utc) == ts
+        assert row.timestamp.replace(tzinfo=UTC) == ts
         assert row.role == "assistant"
         assert row.content == "Contenido de prueba"
 
@@ -85,7 +84,9 @@ class TestSave:
         user_id = "multi-role-user"
 
         user_msg = MessageFactory.create_user_message(user_id=user_id, content="Pregunta")
-        assistant_msg = MessageFactory.create_assistant_message(user_id=user_id, content="Respuesta")
+        assistant_msg = MessageFactory.create_assistant_message(
+            user_id=user_id, content="Respuesta"
+        )
         user_msg2 = MessageFactory.create_user_message(user_id=user_id, content="Otra pregunta")
 
         for msg in (user_msg, assistant_msg, user_msg2):
@@ -214,4 +215,3 @@ class TestVolume:
             select(MessagesModel).where(MessagesModel.user_id == user_id)
         )
         assert len(result.scalars().all()) == 50
-
