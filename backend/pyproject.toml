@@ -2,7 +2,6 @@
 target-version = "py313"
 line-length = 100
 src = ["app", "tests"]
-extend-select = ["I", "B", "UP"]
 force-exclude = true
 exclude = [
   ".venv",
@@ -10,6 +9,9 @@ exclude = [
   "dist",
   "__pycache__",
 ]
+
+[tool.ruff.lint]
+extend-select = ["I", "B", "UP"]
 
 [tool.ruff.format]
 quote-style = "double"
