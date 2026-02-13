@@ -1,13 +1,13 @@
-from sqlalchemny.ext.asyncio import AsyncEngine
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from .adapters.base_sqlalchemy_adapter import BaseSQLAlchemyAdapter
+from .base_sqlalchemy_adapter import BaseSQLAlchemyAdapter
 
 
 class MySQLAdapter(BaseSQLAlchemyAdapter):
     """MySQL database adapter using SQLAlchemy Async Engine."""
 
     def __init__(self, database_url: str, pool_size: int = 10, max_overflow: int = 20):
+        super().__init__(session_factory=None) # Daba error de "does not call the method of the same name in parent class (reportMissingSuperCall)"
         self.database_url = database_url
         self.pool_size = pool_size
         self.max_overflow = max_overflow

@@ -9,7 +9,7 @@ from ...domain.entities.reservation import Reservation
 
 class ReservationRepository(ABC):
     @abstractmethod
-    def save(self, reservation: Reservation) -> None:
+    async def save(self, reservation: Reservation) -> None:
         """
         Guardar una reserva en la base de datos.
         """

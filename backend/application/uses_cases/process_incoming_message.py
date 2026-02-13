@@ -17,7 +17,7 @@ class ProcessIncomingMessageUseCase:
         self.message_repository = message_repository
         self.reservation_repository = reservation_repository
 
-    def execute(self) -> Message | None:
+    async def execute(self) -> Message | None:
         try:
             # Recuperar el mensaje más antiguo en la cola
             # message = self.message_queue.get_nowait()
@@ -33,15 +33,16 @@ class ProcessIncomingMessageUseCase:
         if message:
             message_processed = Message(
                 id=str(uuid4()),
+                user_id=message.user_id,
                 timestamp=datetime.now(),
                 role=Role.USER,
                 content=message.content,
             )
-            if not message_processed.is_valid():
+            if not message_processed.is_valid:
                 return None
 
             # 2. Guardar en BBDD
-            self.message_repository.save(message_processed)
+            await self.message_repository.save(message_processed)
 
             return message_processed
 

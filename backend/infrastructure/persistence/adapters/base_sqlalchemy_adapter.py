@@ -1,4 +1,5 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
+from typing import Any
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
@@ -6,9 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from .database_adapter import DatabaseAdapter
 
 
-class BaseSQLAlchemyAdapter(DatabaseAdapter):
+class BaseSQLAlchemyAdapter(DatabaseAdapter, ABC):
     def __init__(self, session_factory):
-        self._session_factory: [AsyncSession] | None = None
+        self._session_factory: Any = None
         self._engine: AsyncEngine | None = None
 
     @abstractmethod

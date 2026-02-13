@@ -76,8 +76,8 @@ class ReservationFactory:
             id=id or str(uuid4()),
             person_name=person_name
             or PersonName(first_name=fake.first_name(), last_name=fake.last_name()),
-            dni=dni or DNI(value=fake.bothify(text="########?").upper()),
-            phone_number=phone_number or PhoneNumber(value=fake.phone_number()),
+            dni=dni or DNI(dni=fake.bothify(text="########?").upper()),
+            phone_number=phone_number or PhoneNumber(phone_number=fake.phone_number()),
             dates_check_io=dates_check_io
             or DatesIO(
                 check_in=fake.future_date(end_date="+30d"),

@@ -9,7 +9,7 @@ from ...domain.entities.message import Message
 
 class MessageRepository(ABC):
     @abstractmethod
-    def save(self, message: Message) -> None:
+    async def save(self, message: Message) -> None:
         """
         Guardar un mensaje en la base de datos.
         """
