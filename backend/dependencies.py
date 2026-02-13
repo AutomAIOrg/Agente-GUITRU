@@ -24,4 +24,4 @@ async def get_db_session(adapter: DatabaseAdapter) -> AsyncGenerator[AsyncSessio
     try:
         yield session
     finally:
-        await session.close()
+        session.close()

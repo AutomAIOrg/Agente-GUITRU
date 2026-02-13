@@ -24,9 +24,9 @@ class MySQLAdapter(BaseSQLAlchemyAdapter):
         """Inicializar conexión a la base de datos MySQL y creación de tablas."""
         await super().connect()
 
-        if self._engine is None:
+        if self._engine is not None:
             async with self._engine.begin() as conn:
-                from ..models.base import Base
+                from ...models.base import Base
 
                 await conn.run_sync(Base.metadata.create_all)
 

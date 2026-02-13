@@ -7,21 +7,21 @@ class DatabaseAdapter(ABC):
     """Abstract base class for database adapters."""
 
     @abstractmethod
-    def connect(self) -> AsyncSession:
+    async def connect(self) -> None:
         """Establish a connection to the database."""
         pass
 
     @abstractmethod
-    def disconnect(self) -> AsyncSession:
+    async def disconnect(self) -> None:
         """Close the connection to the database."""
         pass
 
     @abstractmethod
-    def get_session(self) -> AsyncSession:
+    async def get_session(self) -> AsyncSession:
         """Get a database session."""
         pass
 
     @abstractmethod
-    def health_check(self) -> AsyncSession:
+    async def health_check(self) -> bool:
         """Check the health of the database connection."""
         pass

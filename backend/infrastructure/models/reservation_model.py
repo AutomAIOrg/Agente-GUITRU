@@ -7,7 +7,7 @@ from datetime import datetime
 from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, MappedColumn
 
-from ..base_model import BaseModel
+from .base_model import BaseModel
 
 
 class ReservationModel(BaseModel):

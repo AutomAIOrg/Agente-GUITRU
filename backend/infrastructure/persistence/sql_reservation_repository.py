@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...domain.entities.reservation import Reservation
 from ...domain.repositories.reservation_repository import ReservationRepository
-from .models.reservations_model import ReservationsModel
+from ..models.reservation_model import ReservationModel
 
 
 class SQLReservationRepository(ReservationRepository):
@@ -18,7 +18,7 @@ class SQLReservationRepository(ReservationRepository):
         Guardar un reserva en la base de datos.
         """
         # Lógica para guardar la reserva en la base de datos SQL
-        db_reservation = ReservationsModel(
+        db_reservation = ReservationModel(
             id=reservation.id,
             person_name=reservation.person_name,
             dni=reservation.dni,

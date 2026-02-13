@@ -80,8 +80,8 @@ class ReservationFactory:
             phone_number=phone_number or PhoneNumber(phone_number=fake.phone_number()),
             dates_check_io=dates_check_io
             or DatesIO(
-                check_in=fake.future_date(end_date="+30d"),
-                check_out=fake.future_date(end_date="+60d"),
+                check_in=datetime.combine(fake.future_date(end_date="+30d"), datetime.min.time()),
+                check_out=datetime.combine(fake.future_date(end_date="+60d"), datetime.min.time()),
             ),
         )
 
