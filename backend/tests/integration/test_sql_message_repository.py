@@ -10,6 +10,7 @@ Suite mínima y sin redundancias que cubre:
 - Volumen (batch de 50)
 """
 
+from contextlib import suppress
 from datetime import UTC, datetime
 
 import pytest
@@ -154,10 +155,8 @@ class TestTransactions:
         await repo.save(original)
 
         # 2. Forzar error con ID duplicado
-        try:
+        with suppress(Exception):
             await repo.save(MessageFactory.create(id="rollback-test"))
-        except Exception:
-            pass
 
         # 3. El original debe seguir en BD
         result = await clean_db_session.execute(

@@ -89,13 +89,12 @@ async def db_session(test_engine: AsyncEngine) -> AsyncGenerator[AsyncSession]:
         expire_on_commit=False,
     )
 
-    async with async_session_maker() as session:
+    async with async_session_maker() as session, session.begin():
         # Iniciar una transacción
-        async with session.begin():
-            yield session
-            # Al salir del contexto, automáticamente hace rollback
-            # Esto limpia los datos insertados durante el test
-            await session.rollback()
+        yield session
+        # Al salir del contexto, automáticamente hace rollback
+        # Esto limpia los datos insertados durante el test
+        await session.rollback()
 
 
 @pytest_asyncio.fixture(scope="function")
