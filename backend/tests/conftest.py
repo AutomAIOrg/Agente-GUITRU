@@ -11,8 +11,8 @@ from collections.abc import AsyncGenerator
 from pathlib import Path
 
 import pytest_asyncio
-from .infrastructure.config.settings_db import SettingsDB
-from .infrastructure.models.base import Base
+from ..infrastructure.config.settings_db import SettingsDB
+from ..infrastructure.models.base import Base
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
