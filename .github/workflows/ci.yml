@@ -53,22 +53,22 @@ jobs:
       mysql:
         image: mysql:8.0.45
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.CI_DB_ROOT_PASS || 'ci_root_pass' }}
+          MYSQL_ROOT_PASSWORD: ci_root_pass
           MYSQL_DATABASE: agente_guitru
-          MYSQL_USER: ${{ secrets.CI_DB_USER || 'ci_user' }}
-          MYSQL_PASSWORD: ${{ secrets.CI_DB_PASS || 'ci_pass' }}
+          MYSQL_USER: ci_user
+          MYSQL_PASSWORD: ci_pass
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -u${{ secrets.CI_DB_USER || 'ci_user' }} -p${{ secrets.CI_DB_PASS || 'ci_pass' }}"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uci_user -pci_pass"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=20
     env:
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
-      DB_USER: ${{ secrets.CI_DB_USER || 'ci_user' }}
-      DB_PASS: ${{ secrets.CI_DB_PASS || 'ci_pass' }}
+      DB_USER: ci_user
+      DB_PASS: ci_pass
       DB_NAME: agente_guitru
     steps:
       - uses: actions/checkout@v4
