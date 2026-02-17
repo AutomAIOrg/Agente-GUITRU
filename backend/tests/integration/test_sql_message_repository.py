@@ -14,12 +14,13 @@ from contextlib import suppress
 from datetime import UTC, datetime
 
 import pytest
-from backend.domain.entities.message import Role
-from backend.infrastructure.models.messages_model import MessagesModel
-from backend.infrastructure.persistence.sql_message_repository import SQLMessageRepository
-from backend.tests.fixtures.factories import MessageFactory
 from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
+
+from ..domain.entities.message import Role
+from ..infrastructure.models.messages_model import MessagesModel
+from ..infrastructure.persistence.sql_message_repository import SQLMessageRepository
+from ..tests.fixtures.factories import MessageFactory
 
 pytestmark = pytest.mark.asyncio
 

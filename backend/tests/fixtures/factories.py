@@ -7,13 +7,14 @@ Usa Faker para generar datos realistas y variados.
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from backend.domain.entities.message import Message, Role
-from backend.domain.entities.reservation import Reservation
-from backend.domain.value_objects.dates_io import DatesIO
-from backend.domain.value_objects.dni import DNI
-from backend.domain.value_objects.person_name import PersonName
-from backend.domain.value_objects.phone_number import PhoneNumber
 from faker import Faker
+
+from ..domain.entities.message import Message, Role
+from ..domain.entities.reservation import Reservation
+from ..domain.value_objects.dates_io import DatesIO
+from ..domain.value_objects.dni import DNI
+from ..domain.value_objects.person_name import PersonName
+from ..domain.value_objects.phone_number import PhoneNumber
 
 fake = Faker(["es_ES", "es_MX"])  # Español para datos más realistas
 

@@ -11,14 +11,15 @@ from collections.abc import AsyncGenerator
 from pathlib import Path
 
 import pytest_asyncio
-from ..infrastructure.config.settings_db import SettingsDB
-from ..infrastructure.models.base import Base
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
+
+from ..infrastructure.config.settings_db import SettingsDB
+from ..infrastructure.models.base import Base
 
 # Garantizar que la raíz del proyecto esté en sys.path
 # (necesario cuando el path contiene espacios y pythonpath=. de pytest.ini falla)
