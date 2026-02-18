@@ -27,24 +27,3 @@ class MySQLAdapter(BaseSQLAlchemyAdapter):
                 from ...models.base import Base
 
                 await conn.run_sync(Base.metadata.create_all)
-
-
-# settings_db = SettingsDB()
-
-# def _build_url_db(s: SettingsDB) -> str:
-#     """Creación de la URL de conexión a la base de datos."""
-#     password = urllib.parse.quote_plus(s.DB_PASS.get_secret_value())
-#     return (f"mysql+asyncmy://{s.DB_USER}:{password}@{s.DB_HOST}:{s.DB_PORT}/{s.DB_NAME}")
-
-# engine = create_async_engine(
-#     _build_url_db(settings_db),
-#     pool_size=settings_db.DB_POOL_SIZE,
-#     max_overflow=settings_db.DB_MAX_OVERFLOW,
-#     echo=False
-# )
-
-# AsyncSessionLocal = async_sessionmaker(
-#     bind=engine,
-#     class_=AsyncSession,
-#     expire_on_commit=False
-# )
