@@ -1,3 +1,4 @@
+from asyncio import Queue
 from typing import Annotated
 
 from fastapi import Depends
@@ -27,8 +28,9 @@ def get_reservation_repository(
 # Use Cases
 def get_process_incoming_message_uc(
     message_repository: Annotated[MessageRepository, Depends(get_message_repository)],
-    reservation_repository: Annotated[ReservationRepository, Depends(get_reservation_repository)],
+    message_queue: Annotated[Queue, Depends(lambda: Queue())],
 ) -> ProcessIncomingMessageUseCase:
     return ProcessIncomingMessageUseCase(
-        message_repository=message_repository, reservation_repository=reservation_repository
+        message_repository=message_repository,
+        message_queue=message_queue,
     )
