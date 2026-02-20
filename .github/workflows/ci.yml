@@ -22,10 +22,10 @@ jobs:
           pip install -r requirements.txt
 
       - name: Ruff (lint)
-        run: ruff check .
+        run: ruff check . --config backend/pyproject.toml
 
       - name: Ruff (format check)
-        run: ruff format --check .
+        run: ruff format --check . --config backend/pyproject.toml
       
       - name: Type check (basedpyright)
         run: basedpyright --project backend/pyproject.toml
@@ -54,7 +54,7 @@ jobs:
         image: mysql:8.0.45
         env:
           MYSQL_ROOT_PASSWORD: ci_root_pass
-          MYSQL_DATABASE: agente_guitru
+          MYSQL_DATABASE: agente_guitru_test
           MYSQL_USER: ci_user
           MYSQL_PASSWORD: ci_pass
         ports:
@@ -69,7 +69,7 @@ jobs:
       DB_PORT: 3306
       DB_USER: ci_user
       DB_PASS: ci_pass
-      DB_NAME: agente_guitru
+      DB_NAME: agente_guitru_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v6
@@ -81,6 +81,9 @@ jobs:
         run: |
           python -m pip install -U pip
           pip install -r requirements.txt
+
+      - name: Unit tests
+        run: pytest backend/tests/unit
 
       - name: Integration tests
         run: pytest backend/tests/integration

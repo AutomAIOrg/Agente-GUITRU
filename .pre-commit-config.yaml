@@ -4,9 +4,10 @@ repos:
     rev: v0.14.14
     hooks:
       - id: ruff-check
-        args: [--fix]
+        args: [--fix, --config, backend/pyproject.toml]
         stages: [pre-commit]
       - id: ruff-format
+        args: [--config, backend/pyproject.toml]
         stages: [pre-commit]
 
   # 2) Typecheck + tests antes de push
