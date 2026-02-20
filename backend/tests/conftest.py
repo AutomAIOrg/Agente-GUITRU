@@ -6,8 +6,8 @@ especialmente fixtures para conexión a base de datos de test.
 """
 
 import sys
-import urllib.parse
 from collections.abc import AsyncGenerator
+from contextlib import suppress
 from pathlib import Path
 
 import pytest_asyncio
@@ -18,7 +18,6 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from ..infrastructure.config.settings_db import SettingsDB
 from ..infrastructure.models.base import Base
 
 # Garantizar que la raíz del proyecto esté en sys.path
@@ -33,20 +32,16 @@ if _ROOT not in sys.path:
 def get_test_database_url() -> str:
     """
     Construye la URL de conexión para la base de datos de test.
-
-    IMPORTANTE: Para VPS con usuarios restringidos, usamos la MISMA base de datos
-    que producción pero con tablas con prefijo 'test_' para diferenciarlas.
     """
-    settings = SettingsDB()
-    password = urllib.parse.quote_plus(settings.DB_PASS.get_secret_value())
-
-    # Usar la MISMA base de datos (no crear una nueva)
-    # El usuario del VPS probablemente no tiene permisos para crear BDs
-    db_name = settings.DB_NAME
+    DB_HOST = "127.0.0.1"
+    DB_PORT = 3306
+    DB_USER = "user_test"
+    password = "pass_test"
+    db_name = "db_test"
 
     return (
-        f"mysql+asyncmy://{settings.DB_USER}:{password}"
-        f"@{settings.DB_HOST}:{settings.DB_PORT}/{db_name}"
+        f"mysql+asyncmy://{DB_USER}:{password}"
+        f"@{DB_HOST}:{DB_PORT}/{db_name}"
     )
 
 
@@ -78,24 +73,20 @@ async def test_engine() -> AsyncGenerator[AsyncEngine]:
 @pytest_asyncio.fixture(scope="function")
 async def db_session(test_engine: AsyncEngine) -> AsyncGenerator[AsyncSession]:
     """
-    Proporciona una sesión de base de datos limpia para cada test.
-    Scope: function - Nueva sesión para cada test (aislamiento completo).
-
-    Al final de cada test, hace rollback para limpiar los datos.
+    Proporciona una sesión de base de datos aislada por test.
+    Siempre hace rollback al finalizar.
     """
-    # Crear session factory
     async_session_maker = async_sessionmaker(
         test_engine,
         class_=AsyncSession,
         expire_on_commit=False,
     )
 
-    async with async_session_maker() as session, session.begin():
-        # Iniciar una transacción
-        yield session
-        # Al salir del contexto, automáticamente hace rollback
-        # Esto limpia los datos insertados durante el test
-        await session.rollback()
+    async with async_session_maker() as session:
+        try:
+            yield session
+        finally:
+            await session.rollback()
 
 
 @pytest_asyncio.fixture(scope="function")
@@ -116,16 +107,26 @@ async def clean_db_session(test_engine: AsyncEngine) -> AsyncGenerator[AsyncSess
     async with async_session_maker() as session:
         yield session
 
+        db_name = "db_test"
+        if not db_name.endswith("_test"):
+            return
+
         # Limpiar manualmente todas las tablas con TRUNCATE (más rápido)
         from sqlalchemy import text
 
         # Deshabilitar FK temporalmente para limpiar
         await session.execute(text("SET FOREIGN_KEY_CHECKS = 0"))
 
-        # Truncar todas las tablas
-        for table in reversed(Base.metadata.sorted_tables):
-            await session.execute(text(f"TRUNCATE TABLE `{table.name}`"))
+        try:
+            # Truncar todas las tablas
+            for table in reversed(Base.metadata.sorted_tables):
+                await session.execute(text(f"TRUNCATE TABLE `{table.name}`"))
 
-        # Rehabilitar FK
-        await session.execute(text("SET FOREIGN_KEY_CHECKS = 1"))
-        await session.commit()
+            # Rehabilitar FK en la ruta de éxito
+            await session.execute(text("SET FOREIGN_KEY_CHECKS = 1"))
+            await session.commit()
+
+        finally:
+            # Asegurar que los FK checks se reactivan incluso si algo falla
+            with suppress(Exception):
+                await session.execute(text("SET FOREIGN_KEY_CHECKS = 1"))
