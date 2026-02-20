@@ -2,27 +2,25 @@
 Recupera el mensaje más antiguo en la cola de mensajes entrantes y lo procesa.
 """
 
+from asyncio import Queue
 from datetime import datetime
 from uuid import uuid4
 
 from ...domain.entities.message import Message, Role
 from ...domain.repositories.message_repository import MessageRepository
-from ...domain.repositories.reservation_repository import ReservationRepository
 
 
 class ProcessIncomingMessageUseCase:
     def __init__(
-        self, message_repository: MessageRepository, reservation_repository: ReservationRepository
+        self, message_repository: MessageRepository, message_queue: Queue
     ):
         self.message_repository = message_repository
-        self.reservation_repository = reservation_repository
+        self.message_queue = message_queue
 
     async def execute(self) -> Message | None:
         try:
             # Recuperar el mensaje más antiguo en la cola
-            # message = self.message_queue.get_nowait()
-            message = None  # Simulación de recuperación de mensaje
-
+            message = await self.message_queue.get()
         except Exception:
             # Manejar el caso en que no hay mensajes en la cola
             return None
