@@ -1,5 +1,5 @@
 """
-Implementación de repositorio SQL para manejar los mensajes en la base de datos.
+Implementación de repositorio SQL para manejar reservas en la base de datos.
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,12 +17,16 @@ class SQLReservationRepository(ReservationRepository):
         """
         Guardar un reserva en la base de datos.
         """
+        person_name = (
+            f"{reservation.person_name.last_name}, {reservation.person_name.first_name}".strip()
+        )
+
         # Lógica para guardar la reserva en la base de datos SQL
         db_reservation = ReservationModel(
             id=reservation.id,
-            person_name=reservation.person_name,
-            dni=reservation.dni,
-            phone_number=reservation.phone_number,
+            person_name=person_name,
+            dni=reservation.dni.dni,
+            phone_number=reservation.phone_number.phone_number,
             dates_check_in=reservation.dates_check_io.check_in,
             dates_check_out=reservation.dates_check_io.check_out,
         )
@@ -33,7 +37,6 @@ class SQLReservationRepository(ReservationRepository):
             await self.db_session.commit()
             await self.db_session.refresh(db_reservation)
 
-        except Exception as e:
+        except Exception:
             await self.db_session.rollback()
-            print(f"Error saving reservation: {e}")
-            raise e
+            raise

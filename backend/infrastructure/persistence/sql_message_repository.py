@@ -31,7 +31,6 @@ class SQLMessageRepository(MessageRepository):
         try:
             await self.db_session.commit()
 
-        except Exception as e:
+        except Exception:
             await self.db_session.rollback()
-            print(f"Error saving message: {e}")
-            raise e
+            raise

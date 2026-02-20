@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Any
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
@@ -8,8 +7,8 @@ from .database_adapter import DatabaseAdapter
 
 
 class BaseSQLAlchemyAdapter(DatabaseAdapter, ABC):
-    def __init__(self, session_factory):
-        self._session_factory: Any = None
+    def __init__(self) -> None:
+        self._session_factory: async_sessionmaker[AsyncSession] | None = None
         self._engine: AsyncEngine | None = None
 
     @abstractmethod
