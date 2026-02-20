@@ -1,6 +1,8 @@
 from collections.abc import AsyncGenerator
 from functools import lru_cache
+from typing import Annotated
 
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .infrastructure.config.settings_db import get_settings_db
@@ -19,7 +21,9 @@ def get_db_adapter() -> DatabaseAdapter:
     )
 
 
-async def get_db_session(adapter: DatabaseAdapter) -> AsyncGenerator[AsyncSession]:
+async def get_db_session(
+    adapter: Annotated[DatabaseAdapter, Depends(get_db_adapter)],
+) -> AsyncGenerator[AsyncSession]:
     session = await adapter.get_session()
     try:
         yield session
