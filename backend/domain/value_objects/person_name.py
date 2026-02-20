@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from queue import Empty
 
 
 @dataclass
@@ -11,4 +10,4 @@ class PersonName:
 
     @property
     def is_valid(self) -> bool:
-        return self.first_name is not Empty and self.last_name is not Empty
+        return bool(self.first_name.strip()) and bool(self.last_name.strip())

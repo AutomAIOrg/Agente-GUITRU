@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from queue import Empty
 
 
 class Role(Enum):
@@ -23,4 +22,4 @@ class Message:
 
     @property
     def is_valid(self) -> bool:
-        return self.content is not Empty
+        return bool(self.content.strip())
