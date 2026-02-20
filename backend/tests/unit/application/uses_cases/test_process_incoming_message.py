@@ -14,6 +14,7 @@ pytestmark = [
     pytest.mark.unit,
 ]
 
+
 async def test_execute_no_message():
     # Mock dependencies
     message_repository = AsyncMock(spec=MessageRepository)
@@ -32,6 +33,7 @@ async def test_execute_no_message():
     assert result is None
     message_queue.get.assert_called_once()
 
+
 async def test_execute_valid_message():
     # Mock dependencies
     message_repository = AsyncMock(spec=MessageRepository)
@@ -46,7 +48,7 @@ async def test_execute_valid_message():
         user_id="user123",
         timestamp=datetime.now(),
         role=Role.USER,
-        content="Hello!"
+        content="Hello!",
     )
     message_queue.get.return_value = valid_message
 
@@ -58,6 +60,7 @@ async def test_execute_valid_message():
     assert result.is_valid is True
     message_repository.save.assert_awaited_once_with(result)
     message_queue.get.assert_called_once()
+
 
 async def test_execute_invalid_message():
     # Mock dependencies
@@ -73,7 +76,7 @@ async def test_execute_invalid_message():
         user_id="user123",
         timestamp=datetime.now(),
         role=Role.USER,
-        content=""  # Contenido inválido
+        content="",  # Contenido inválido
     )
     message_queue.get.return_value = invalid_message
 

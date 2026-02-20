@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
+
 from backend.domain.entities.message import Message, Role
 from backend.infrastructure.persistence.sql_message_repository import SQLMessageRepository
 
@@ -10,6 +11,7 @@ pytestmark = [
     pytest.mark.unit,
     pytest.mark.asyncio,
 ]
+
 
 async def test_save_message():
     # Mock AsyncSession
@@ -33,6 +35,7 @@ async def test_save_message():
     # Verificar que se llamaron los métodos correctos
     mock_session.add.assert_called_once()
     mock_session.commit.assert_awaited_once()
+
 
 async def test_save_message_rollback_on_error():
     # Mock AsyncSession

@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
+
 from backend.domain.entities.reservation import Reservation
 from backend.domain.value_objects.dates_io import DatesIO
 from backend.domain.value_objects.dni import DNI
@@ -14,6 +15,7 @@ pytestmark = [
     pytest.mark.unit,
     pytest.mark.asyncio,
 ]
+
 
 async def test_save_reservation():
     # Mock AsyncSession
@@ -41,6 +43,7 @@ async def test_save_reservation():
     mock_session.add.assert_called_once()
     mock_session.commit.assert_awaited_once()
     mock_session.refresh.assert_awaited_once()
+
 
 async def test_save_reservation_rollback_on_error():
     # Mock AsyncSession

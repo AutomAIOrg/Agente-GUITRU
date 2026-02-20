@@ -18,6 +18,7 @@ pytestmark = [
     pytest.mark.unit,
 ]
 
+
 def test_get_message_repository():
     # Mock AsyncSession
     mock_session = AsyncMock(spec=AsyncSession)
@@ -29,6 +30,7 @@ def test_get_message_repository():
     assert isinstance(repository, SQLMessageRepository)
     assert repository.db_session == mock_session
 
+
 def test_get_reservation_repository():
     # Mock AsyncSession
     mock_session = AsyncMock(spec=AsyncSession)
@@ -39,6 +41,7 @@ def test_get_reservation_repository():
     # Verificar que devuelve una instancia de SQLReservationRepository
     assert isinstance(repository, SQLReservationRepository)
     assert repository.db_session == mock_session
+
 
 def test_get_process_incoming_message_uc():
     # Mock dependencias

@@ -16,23 +16,17 @@ pytestmark = [
 
 def test_message_is_valid():
     message = Message(
-        id="1",
-        user_id="user123",
-        timestamp=datetime.now(),
-        role=Role.USER,
-        content="Hello"
+        id="1", user_id="user123", timestamp=datetime.now(), role=Role.USER, content="Hello"
     )
     assert message.is_valid is True
 
+
 def test_message_invalid_content():
     message = Message(
-        id="1",
-        user_id="user123",
-        timestamp=datetime.now(),
-        role=Role.USER,
-        content=""
+        id="1", user_id="user123", timestamp=datetime.now(), role=Role.USER, content=""
     )
     assert message.is_valid is False
+
 
 def test_reservation_initialization():
     person_name = PersonName(first_name="John", last_name="Doe")
@@ -41,11 +35,7 @@ def test_reservation_initialization():
     dates_io = DatesIO(check_in=datetime.now(), check_out=datetime.now() + timedelta(days=1))
 
     reservation = Reservation(
-        id="1",
-        person_name=person_name,
-        dni=dni,
-        phone_number=phone_number,
-        dates_check_io=dates_io
+        id="1", person_name=person_name, dni=dni, phone_number=phone_number, dates_check_io=dates_io
     )
 
     assert reservation.person_name.first_name == "John"

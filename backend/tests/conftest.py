@@ -39,10 +39,7 @@ def get_test_database_url() -> str:
     password = "pass_test"
     db_name = "db_test"
 
-    return (
-        f"mysql+asyncmy://{DB_USER}:{password}"
-        f"@{DB_HOST}:{DB_PORT}/{db_name}"
-    )
+    return f"mysql+asyncmy://{DB_USER}:{password}@{DB_HOST}:{DB_PORT}/{db_name}"
 
 
 @pytest_asyncio.fixture(scope="function")

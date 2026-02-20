@@ -26,6 +26,9 @@ ignore = [
   # ejemplo: si te molesta alguna regla concreta, añádela aquí
 ]
 
+[tool.ruff.lint.isort]
+known-first-party = ["backend"]
+
 [tool.ruff.lint.per-file-ignores]
 "backend/tests/**/*" = [
   "S101",  # asserts en tests (si se activa 'S' en el futuro)

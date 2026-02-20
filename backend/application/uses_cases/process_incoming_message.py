@@ -11,9 +11,7 @@ from ...domain.repositories.message_repository import MessageRepository
 
 
 class ProcessIncomingMessageUseCase:
-    def __init__(
-        self, message_repository: MessageRepository, message_queue: Queue
-    ):
+    def __init__(self, message_repository: MessageRepository, message_queue: Queue):
         self.message_repository = message_repository
         self.message_queue = message_queue
 
