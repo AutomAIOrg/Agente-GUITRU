@@ -2,6 +2,8 @@ from asyncio import Queue
 from unittest.mock import AsyncMock
 
 import pytest
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from backend.application.uses_cases.process_incoming_message import ProcessIncomingMessageUseCase
 from backend.domain.repositories.message_repository import MessageRepository
 from backend.infrastructure.persistence.sql_message_repository import SQLMessageRepository
@@ -11,7 +13,6 @@ from backend.interface.dependencies import (
     get_process_incoming_message_uc,
     get_reservation_repository,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
 
 pytestmark = [
     pytest.mark.unit,

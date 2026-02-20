@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
+
 from backend.application.uses_cases.process_incoming_message import ProcessIncomingMessageUseCase
 from backend.domain.entities.message import Message, Role
 from backend.domain.repositories.message_repository import MessageRepository
