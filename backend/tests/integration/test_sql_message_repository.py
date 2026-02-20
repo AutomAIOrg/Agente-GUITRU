@@ -12,6 +12,7 @@ Suite mínima y sin redundancias que cubre:
 
 from contextlib import suppress
 from datetime import UTC, datetime
+from uuid import uuid4
 
 import pytest
 from sqlalchemy import select, text
@@ -22,7 +23,12 @@ from ...infrastructure.models.messages_model import MessagesModel
 from ...infrastructure.persistence.sql_message_repository import SQLMessageRepository
 from ..fixtures.factories import MessageFactory
 
-pytestmark = pytest.mark.asyncio
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.integration,
+    pytest.mark.repository,
+    pytest.mark.database,
+]
 
 
 class TestConnectionAndSchema:
@@ -57,8 +63,9 @@ class TestSave:
         repo = SQLMessageRepository(clean_db_session)
         ts = datetime(2024, 1, 15, 10, 30, 0, tzinfo=UTC)
 
+        message_id = uuid4().hex
         message = MessageFactory.create(
-            id="save-all-fields",
+            id=message_id,
             user_id="user-456",
             timestamp=ts,
             role=Role.ASSISTANT,
@@ -67,7 +74,7 @@ class TestSave:
         await repo.save(message)
 
         result = await clean_db_session.execute(
-            select(MessagesModel).where(MessagesModel.id == "save-all-fields")
+            select(MessagesModel).where(MessagesModel.id == message_id)
         )
         row = result.scalar_one()
 
@@ -83,7 +90,7 @@ class TestSave:
         Reemplaza 6 tests antiguos de múltiples + roles + timestamps ordenados.
         """
         repo = SQLMessageRepository(clean_db_session)
-        user_id = "multi-role-user"
+        user_id = f"multi-role-user-{uuid4()}"
 
         user_msg = MessageFactory.create_user_message(user_id=user_id, content="Pregunta")
         assistant_msg = MessageFactory.create_assistant_message(
@@ -114,11 +121,12 @@ class TestConstraints:
         Reemplaza 4 tests antiguos de PK duplicada + propagación de errores.
         """
         repo = SQLMessageRepository(clean_db_session)
-        msg = MessageFactory.create(id="dup-pk")
+        duplicate_id = uuid4().hex
+        msg = MessageFactory.create(id=duplicate_id)
         await repo.save(msg)
 
-        with pytest.raises((IntegrityError, Exception)):
-            await repo.save(MessageFactory.create(id="dup-pk"))
+        with pytest.raises(IntegrityError, match=r"Duplicate entry|UNIQUE"):
+            await repo.save(MessageFactory.create(id=duplicate_id))
 
     async def test_null_required_field_raises_error(self, clean_db_session):
         """
@@ -133,7 +141,7 @@ class TestConstraints:
         )
         clean_db_session.add(invalid)
 
-        with pytest.raises((IntegrityError, Exception)):
+        with pytest.raises(IntegrityError, match=r"cannot be null|NOT NULL"):
             await clean_db_session.commit()
 
         await clean_db_session.rollback()
@@ -152,16 +160,17 @@ class TestTransactions:
         repo = SQLMessageRepository(clean_db_session)
 
         # 1. Guardar mensaje válido
-        original = MessageFactory.create(id="rollback-test")
+        rollback_id = uuid4().hex
+        original = MessageFactory.create(id=rollback_id)
         await repo.save(original)
 
         # 2. Forzar error con ID duplicado
         with suppress(Exception):
-            await repo.save(MessageFactory.create(id="rollback-test"))
+            await repo.save(MessageFactory.create(id=rollback_id))
 
         # 3. El original debe seguir en BD
         result = await clean_db_session.execute(
-            select(MessagesModel).where(MessagesModel.id == "rollback-test")
+            select(MessagesModel).where(MessagesModel.id == rollback_id)
         )
         assert result.scalar_one_or_none() is not None
 
@@ -179,10 +188,11 @@ class TestEdgeCases:
         """
         repo = SQLMessageRepository(clean_db_session)
 
+        run_id = uuid4().hex
         cases = {
-            "edge-empty": "",
-            "edge-long": "A" * 10_000,
-            "edge-special": "¡Hola! 👋 ¿Cómo estás? Ñoño café 中文 العربية",
+            f"e{run_id[:30]}": "",
+            f"l{run_id[:30]}": "A" * 10_000,
+            f"s{run_id[:30]}": "¡Hola! 👋 ¿Cómo estás? Ñoño café 中文 العربية",
         }
 
         for msg_id, content in cases.items():
@@ -205,7 +215,7 @@ class TestVolume:
         Reemplaza 2 tests antiguos de batch + filtrado por usuario.
         """
         repo = SQLMessageRepository(clean_db_session)
-        user_id = "batch-user"
+        user_id = f"batch-user-{uuid4()}"
         messages = MessageFactory.create_batch(count=50, user_id=user_id)
 
         for msg in messages:
