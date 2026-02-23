@@ -6,9 +6,9 @@ from datetime import datetime
 class DatesIO:
     """Fechas de Check In y Check Out"""
 
-    CheckIn: datetime
-    CheckOut: datetime
+    check_in: datetime
+    check_out: datetime
 
     @property
     def is_valid(self) -> bool:
-        return self.CheckIn <= self.CheckOut
+        return self.check_in <= self.check_out

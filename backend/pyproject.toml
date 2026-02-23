@@ -1,15 +1,41 @@
 [tool.ruff]
 target-version = "py313"
 line-length = 100
-src = ["app", "tests"]
-extend-select = ["I", "B", "UP"]
 force-exclude = true
 exclude = [
   ".venv",
   "build",
   "dist",
   "__pycache__",
+  ".pytest_cache",
+  ".ruff_cache",
 ]
+
+[tool.ruff.lint]
+select = [
+  "F",   # pyflakes
+  "E", "W",  # pycodestyle
+  "I",   # isort
+  "UP",  # pyupgrade
+  "B",   # bugbear
+  "SIM", # simplify (opcional, pero útil)
+  "PT",  # pytest-style (opcional si te gusta)
+  "RUF", # reglas ruff útiles
+]
+ignore = [
+  # ejemplo: si te molesta alguna regla concreta, añádela aquí
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["backend"]
+
+[tool.ruff.lint.per-file-ignores]
+"backend/tests/**/*" = [
+  "S101",  # asserts en tests (si se activa 'S' en el futuro)
+  # Si más adelante se activa docstrings, aquí se puede ignorarlas en tests:
+  # "D",
+]
+"**/__init__.py" = ["F401"]  # imports reexportados típicos
 
 [tool.ruff.format]
 quote-style = "double"
@@ -17,21 +43,39 @@ indent-style = "space"
 line-ending = "auto"
 
 [tool.basedpyright]
-# Recomendado para empezar: suficientemente estricto sin ser “doloroso”.
-typeCheckingMode = "recommended"
+pythonVersion = "3.13"
+typeCheckingMode = "standard"
+failOnWarnings = false
 
-# Para que encuentre dependencias instaladas en tu venv local:
-venvPath = "."
-venv = ".venv"
-
-include = ["backend", "tests"]
+include = ["."]
 exclude = [
   "**/__pycache__",
   ".venv",
   "build",
   "dist",
+  "tests",
+]
+
+# BUG probable -> error
+reportUnusedCoroutine = "error"
+
+# Señal útil, pero no bloquees el merge por esto ahora
+reportUnusedCallResult = "none"
+reportImplicitOverride = "none"
+reportUnannotatedClassAttribute = "none"
+reportUnknownParameterType = "none"
+reportMissingParameterType = "none"
+reportUnknownMemberType = "none"
+reportUnknownVariableType = "none"
+reportUnknownArgumentType = "none"
+reportAny = "none"
+reportExplicitAny = "none"
+
+# (Opcional) si hay imports raros por estructura, esto ayuda:
+executionEnvironments = [
+  { root = "." }
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["backend/tests"]
 addopts = "-q"

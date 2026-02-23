@@ -1,14 +1,13 @@
 from dataclasses import dataclass
-from queue import Empty
 
 
 @dataclass
 class PersonName:
     """Nombre y apellidos del cliente"""
 
-    FirstName: str
-    LastName: str
+    first_name: str
+    last_name: str
 
     @property
     def is_valid(self) -> bool:
-        return self.FirstName is not Empty and self.LastName is not Empty
+        return bool(self.first_name.strip()) and bool(self.last_name.strip())

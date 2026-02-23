@@ -10,5 +10,5 @@ class PhoneNumber:
 
     @property
     def is_valid(self) -> bool:
-        pattern = r"\b\+?\d(?:[\s.-]?\d){6,14}\b"
+        pattern = r"^\+?\d{7,15}$"
         return re.match(pattern, self.phone_number) is not None

@@ -12,24 +12,78 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: "3.13"
           cache: pip
 
       - name: Install dependencies
         run: |
           python -m pip install -U pip
           pip install ruff basedpyright pytest
-          # Si tienes requirements.txt, añade:
-          # pip install -r requirements.txt
+          pip install -r requirements.txt
 
       - name: Ruff (lint)
-        run: ruff check .
+        run: ruff check backend --config backend/pyproject.toml
 
       - name: Ruff (format check)
-        run: ruff format --check .
+        run: ruff format --check backend --config backend/pyproject.toml
       
       - name: Type check (basedpyright)
-        run: basedpyright
+        run: basedpyright --project backend/pyproject.toml
 
-      - name: Tests
-        run: pytest
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements.txt
+
+      - name: Unit tests
+        run: pytest backend/tests/unit
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.45
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: db_test
+          MYSQL_USER: user_test
+          MYSQL_PASSWORD: pass_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 172.18.0.1 -uuser_test -ppass_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      DB_HOST: 172.18.0.1
+      DB_PORT: 3306
+      DB_USER: user_test
+      DB_PASS: pass_test
+      DB_NAME: db_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements.txt
+
+      - name: Unit tests
+        run: pytest backend/tests/unit
+
+      - name: Integration tests
+        run: pytest backend/tests/integration
