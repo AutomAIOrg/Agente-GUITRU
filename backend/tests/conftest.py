@@ -6,11 +6,13 @@ especialmente fixtures para conexión a base de datos de test.
 """
 
 import sys
+import urllib.parse
 from collections.abc import AsyncGenerator
 from contextlib import suppress
 from pathlib import Path
 
 import pytest_asyncio
+from pydantic_settings import SettingsConfigDict
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -18,6 +20,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from ..infrastructure.config.settings_db import SettingsDB
 from ..infrastructure.models.base import Base
 
 # Garantizar que la raíz del proyecto esté en sys.path
@@ -33,13 +36,20 @@ def get_test_database_url() -> str:
     """
     Construye la URL de conexión para la base de datos de test.
     """
-    DB_HOST = "127.0.0.1"
-    DB_PORT = 3306
-    DB_USER = "user_test"
-    password = "pass_test"
-    db_name = "db_test"
 
-    return f"mysql+asyncmy://{DB_USER}:{password}@{DB_HOST}:{DB_PORT}/{db_name}"
+    # Crear una instancia de SettingsDB con configuración para tests
+    class SettingsDBTest(SettingsDB):
+        model_config = SettingsConfigDict(
+            env_file=".env.test", env_prefix="", extra="ignore", case_sensitive=True
+        )
+
+    settings = SettingsDBTest()
+    password = urllib.parse.quote_plus(settings.DB_PASS.get_secret_value())
+
+    return (
+        f"mysql+asyncmy://{settings.DB_USER}:{password}"
+        f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+    )
 
 
 @pytest_asyncio.fixture(scope="function")
