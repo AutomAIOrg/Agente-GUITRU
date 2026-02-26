@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.application.uses_cases.process_incoming_message import ProcessIncomingMessageUseCase
+from backend.application.use_cases.process_incoming_message import ProcessIncomingMessageUseCase
 from backend.domain.repositories.message_repository import MessageRepository
 from backend.infrastructure.persistence.sql_message_repository import SQLMessageRepository
 from backend.infrastructure.persistence.sql_reservation_repository import SQLReservationRepository
