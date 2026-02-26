@@ -1,3 +1,1 @@
-"""
-Factories para generar datos de test.
-"""
+# Factories para generar datos de test
