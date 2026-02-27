@@ -178,7 +178,10 @@ class InMemoryCalendar(CalendarPort):
         description: str,
         calendar_id: str | None = None,
     ) -> str:
-        # idempotente por reservation_id
+        """
+        Idempotente por reservation_id: devuelve el mismo
+        event_id para el mismo reservation_id.
+        """
         if reservation_id in self.store:
             return self.store[reservation_id]
 
