@@ -74,7 +74,6 @@ class TestAgentFlow:
         ctx = AgentContext(
             language="es",
             reservation_id="R-123",
-            guest_phone="+34XXXXXXXXX",
             property_name="Piso Atocha 2B",
             checkin_iso="2026-02-01T16:00:00+01:00",
             checkout_iso="2026-02-05T11:00:00+01:00",
@@ -141,7 +140,6 @@ class TestAgentFlow:
         ctx = AgentContext(
             language="es",
             reservation_id="R-999",
-            guest_phone="+34XXXXXXXXX",
             property_name="Piso X",
             checkin_iso="2026-02-01T16:00:00+01:00",
             checkout_iso="2026-02-02T11:00:00+01:00",

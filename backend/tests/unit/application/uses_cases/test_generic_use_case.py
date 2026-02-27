@@ -42,7 +42,6 @@ def test_generic_use_case_calls_orchestrator_with_goal_and_context() -> None:
     context = AgentContext(
         language="es",
         reservation_id="R-123",
-        guest_phone="+34123456789",
         property_name="Casa de Pruebas",
         checkin_iso="2026-03-04T19:00:00+01:00",
         checkout_iso="2026-03-08T12:00:00+01:00",

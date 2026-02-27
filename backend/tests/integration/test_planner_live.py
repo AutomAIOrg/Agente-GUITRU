@@ -55,7 +55,6 @@ class TestPlannerLive:
         ctx = AgentContext(
             language="es",
             reservation_id="R-LIVE-001",
-            guest_phone="+34000000000",
             property_name="Piso Test",
             checkin_iso="2026-03-01T16:00:00+01:00",
             checkout_iso="2026-03-02T11:00:00+01:00",

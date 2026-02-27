@@ -102,7 +102,6 @@ class TestAgentCalendarE2E:
         ctx = AgentContext(
             language="es",
             reservation_id=reservation_id,
-            guest_phone="+34000000000",
             property_name="Piso Test E2E",
             checkin_iso=start_iso,
             checkout_iso=end_iso,

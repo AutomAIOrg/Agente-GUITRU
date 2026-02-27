@@ -17,7 +17,6 @@ class AgentContext(BaseModel):
 
     language: Literal["es", "en"]
     reservation_id: str
-    guest_phone: str
     property_name: str
     checkin_iso: str
     checkout_iso: str
