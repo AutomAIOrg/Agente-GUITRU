@@ -111,8 +111,6 @@ class TestAgentCalendarE2E:
         # --- Act: llamada end-to-end al agente ---
         result = agent.run(goal, ctx)
 
-        print(str(result.model_dump()))
-
         # --- Assert 1: el agente completó y devolvió event_id ---
         assert result.ok is True, f"Agent result not ok: {result}"
         event_id = result.actions.get("event_id")

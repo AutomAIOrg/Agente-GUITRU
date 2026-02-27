@@ -10,8 +10,6 @@ class PlannerPromptBuilder:
         tool_list = ", ".join(tools.names())
         tool_spec = self._get_tool_spec(tools)
 
-        print(tool_spec)
-
         system_prompt = (
             f"""
 Eres un planner de un agente. Tu trabajo es proponer un plan de pasos usando SOLO tools permitidas.
@@ -25,11 +23,13 @@ Reglas:
             """- La salida **DEBE** ser un JSON válido con **EXACTAMENTE** la siguiente estructura:
 {
     "steps": [
-        "step_id": str,             // Nombre de paso en el plan.
-        "tool": str,                // Nombre de tool.
-        "input": dict               // Inputs de tool. Seguir esquema dado en el catálogo.
-        "rationale": str,           // Justificación de uso de tool.
-    ]
+        {
+            "step_id": str,             // Nombre de paso en el plan.
+            "tool": str,                // Nombre de tool.
+            "input": dict,              // Inputs de tool. Seguir esquema dado en el catálogo.
+            "rationale": str            // Justificación de uso de tool.
+        }
+    ],
     "max_steps": int                // Número de pasos del plan.
 }
 """
