@@ -9,7 +9,7 @@ class CalendarSettings(BaseSettings):
 
     CALENDAR_ID: str = "primary"
     TIMEZONE: str = "Europe/Madrid"
-    SEND_UPDATES: Literal["none", "all", "extrnalOnly"] = "none"
+    SEND_UPDATES: Literal["none", "all", "externalOnly"] = "none"
 
     OAUTH_CLIENT_ID: str | None = None
     OAUTH_CLIENT_SECRET: str | None = None

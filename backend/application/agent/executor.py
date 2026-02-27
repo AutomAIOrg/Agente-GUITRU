@@ -7,7 +7,7 @@ class Executor:
         self.tools = tools
 
     def run_plan(self, agent_plan: AgentPlan) -> list[ToolObservation]:
-        """Ejecucción secuencial de las herramientas que establece el plan."""
+        """Ejecución secuencial de las herramientas que establece el plan."""
         observations: list[ToolObservation] = []
 
         for step in agent_plan.steps:

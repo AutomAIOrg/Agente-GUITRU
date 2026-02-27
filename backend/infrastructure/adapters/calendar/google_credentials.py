@@ -14,7 +14,7 @@ class GoogleCalendarAuthConfig:
     client_id: str | None = None
     client_secret: str | None = None
     refresh_token: str | None = None
-    token_uri: str = "https://oauth2.googlapis.com/token"
+    token_uri: str = "https://oauth2.googleapis.com/token"
 
 
 class GoogleCredentialProvider:

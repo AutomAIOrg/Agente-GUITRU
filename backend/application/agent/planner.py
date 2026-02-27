@@ -31,7 +31,7 @@ class Planner:
     ) -> AgentPlan:
         """Creación del plan para la tarea a desarrollar."""
 
-        # 1. Construccción de prompts
+        # 1. Construcción de prompts
         prompt_builder = PlannerPromptBuilder()
         system_prompt = prompt_builder.get_system_prompt(self.tools, self.policies)
         user_prompt = prompt_builder.get_user_prompt(goal, context, feedback)

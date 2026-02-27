@@ -45,7 +45,7 @@ def main():
     client_config = build_client_config_from_env()
     flow = InstalledAppFlow.from_client_config(client_config, scopes=SCOPES)
 
-    # CRÍICO: para obtener refresh token
+    # CRÍTICO: para obtener refresh token
     # access_type='offline' + prompt='consent'
     creds = flow.run_local_server(
         port=0,

@@ -29,7 +29,8 @@ class Verifier:
                 approved=False,
                 notes=notes,
                 feedback=(
-                    "Rehaz el plan evitando los pasos que fallaron ousando alternativas permitidas."
+                    "Rehaz el plan evitando los pasos que fallaron"
+                    " o usando alternativas permitidas."
                 ),
             )
 
