@@ -1,13 +1,14 @@
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class AgentSettings(BaseSettings):
     """Settings del agente leídos desde variables de entorno."""
 
-    MAX_ITERATIONS: int = 2
-    MAX_STEPS: int = 8
+    MAX_ITERATIONS: int = Field(default=..., description="Máximo número de iteraciones")
+    MAX_STEPS: int = Field(default=..., description="Máximo número de pasos en el plan")
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -1,20 +1,23 @@
 from functools import lru_cache
 from typing import Literal
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class CalendarSettings(BaseSettings):
     """Lee config desde variables de entorno."""
 
-    CALENDAR_ID: str = "primary"
-    TIMEZONE: str = "Europe/Madrid"
-    SEND_UPDATES: Literal["none", "all", "externalOnly"] = "none"
+    CALENDAR_ID: str = Field(default=..., description="ID del calendario")
+    TIMEZONE: str = Field(default=..., description="Huso horario")
+    SEND_UPDATES: Literal["none", "all", "externalOnly"] = Field(
+        default=..., description="Envío de notificación al modificar un evento"
+    )
 
-    OAUTH_CLIENT_ID: str | None = None
-    OAUTH_CLIENT_SECRET: str | None = None
-    OAUTH_REFRESH_TOKEN: str | None = None
-    OAUTH_TOKEN_URI: str = "https://oauth2.googleapis.com/token"
+    OAUTH_CLIENT_ID: str | None = Field(default=None, description="ID del cliente")
+    OAUTH_CLIENT_SECRET: str | None = Field(default=None, description="Secret del cliente")
+    OAUTH_REFRESH_TOKEN: str | None = Field(default=None, description="Refresh token")
+    OAUTH_TOKEN_URI: str = Field(default=..., description="Token URI de OAuth")
 
     model_config = SettingsConfigDict(
         env_file=".env",
