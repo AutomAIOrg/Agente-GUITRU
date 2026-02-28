@@ -12,6 +12,7 @@ from ....application.interfaces.llm import LLMPort
 class OpenAIConfig:
     api_key: str
     model: str = "gpt-5-mini-2025-08-07"
+    timeout_seconds: int = 30
 
 
 class OpenAIAdapter(LLMPort):
@@ -19,18 +20,24 @@ class OpenAIAdapter(LLMPort):
         if not config.api_key:
             raise ValueError("OPENAI_API_KEY no establecida.")
 
-        self._client = OpenAI(api_key=config.api_key)
+        self._client = OpenAI(
+            api_key=config.api_key,
+            timeout=config.timeout_seconds,
+        )
         self._model = config.model
 
     def generate_plan(self, system: str, user: str, schema: type[BaseModel]):
         """Devuelve un objeto validado con Pydantic (schema)."""
 
-        # 1. Llamada a API de OpenAI para generar respuesta
-        raw_response = self._client.responses.create(
-            model=self._model,
-            instructions=system,
-            input=user,
-        )
+        try:
+            # 1. Llamada a API de OpenAI para generar respuesta
+            raw_response = self._client.responses.create(
+                model=self._model,
+                instructions=system,
+                input=user,
+            )
+        except Exception:
+            raise
 
         # 2. Extracción del contenido de la respuesta
         content = self._extract_response(raw_response)

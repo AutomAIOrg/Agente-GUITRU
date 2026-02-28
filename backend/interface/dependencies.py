@@ -53,6 +53,7 @@ def get_llm_provider(llm_settings: Annotated[LLMSettings, Depends(get_llm_settin
     config = OpenAIConfig(
         api_key=llm_settings.API_KEY,
         model=llm_settings.MODEL,
+        timeout_seconds=llm_settings.TIMEOUT_SECONDS,
     )
     return OpenAIAdapter(config)
 
