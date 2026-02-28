@@ -1,5 +1,7 @@
 import os
 import uuid
+from contextlib import suppress
+from datetime import datetime, timedelta
 
 import pytest
 from dotenv import load_dotenv
@@ -90,8 +92,8 @@ class TestAgentCalendarE2E:
         reservation_id = f"E2E-{uuid.uuid4().hex[:8]}"
 
         # OJO: usa ISO con tz para evitar problemas de timezone
-        start_iso = "2026-03-04T19:00:00+01:00"
-        end_iso = "2026-03-08T12:00:00+01:00"
+        start_iso = str((datetime.now() + timedelta(days=3)).isoformat())
+        end_iso = str((datetime.now() + timedelta(days=7)).isoformat())
 
         goal = AgentGoal(
             name="sync_calendar",
@@ -110,31 +112,43 @@ class TestAgentCalendarE2E:
             checkin_time="16:00",
         )
 
-        # --- Act: llamada end-to-end al agente ---
-        result = agent.run(goal, ctx)
-
-        # --- Assert 1: el agente completó y devolvió event_id ---
-        assert result.ok is True, f"Agent result not ok: {result}"
-        event_id = result.actions.get("event_id")
-        assert event_id, "El agente no devolvió event_id en result.actions"
-
-        # --- Assert 2: verificar en Google Calendar que el evento existe y tiene metadata estable
         # Construimos un cliente de Calendar API con las MISMAS credenciales usadas en el adapter
         creds = GoogleCredentialProvider(auth).get()
         service = build("calendar", "v3", credentials=creds, cache_discovery=False)
+        event_id = None
 
-        event = (
-            service.events()
-            .get(
-                calendarId=cal_settings.CALENDAR_ID,
-                eventId=event_id,
+        try:
+            # --- Act: llamada end-to-end al agente ---
+            result = agent.run(goal, ctx)
+
+            # --- Assert 1: el agente completó y devolvió event_id ---
+            assert result.ok is True, f"Agent result not ok: {result}"
+            event_id = result.actions.get("event_id")
+            assert event_id, "El agente no devolvió event_id en result.actions"
+
+            # --- Assert 2: verificar en Google Calendar que evento existe y tiene metadata estable
+
+            event = (
+                service.events()
+                .get(
+                    calendarId=cal_settings.CALENDAR_ID,
+                    eventId=event_id,
+                )
+                .execute()
             )
-            .execute()
-        )
 
-        # Validación estable (no depende del LLM): reservation_id en extendedProperties
-        ext = (event.get("extendedProperties") or {}).get("private") or {}
-        assert ext.get("reservation_id") == reservation_id, (
-            f"extendedProperties.private.reservation_id no coincide. "
-            f"Esperado={reservation_id}, Actual={ext.get('reservation_id')}"
-        )
+            # Validación estable (no depende del LLM): reservation_id en extendedProperties
+            ext = (event.get("extendedProperties") or {}).get("private") or {}
+            assert ext.get("reservation_id") == reservation_id, (
+                f"extendedProperties.private.reservation_id no coincide. "
+                f"Esperado={reservation_id}, Actual={ext.get('reservation_id')}"
+            )
+
+        finally:
+            # Cleanup: eliminar el evento creado en Google Calendar para no dejar residuos
+            if event_id:
+                with suppress(Exception):
+                    service.events().delete(
+                        calendarId=cal_settings.CALENDAR_ID,
+                        eventId=event_id,
+                    ).execute()
