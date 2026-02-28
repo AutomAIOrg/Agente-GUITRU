@@ -23,13 +23,10 @@ class GoogleCalendarAdapter(CalendarPort):
     ):
         self._credentials = credentials_provider
         self._config = config
-        self._service = None
 
     def _get_service(self):
-        if self._service is None:
-            creds = self._credentials.get()
-            self._service = build("calendar", "v3", credentials=creds, cache_discovery=False)
-        return self._service
+        creds = self._credentials.get()
+        return build("calendar", "v3", credentials=creds, cache_discovery=False)
 
     def upsert_reservation_event(
         self,
