@@ -24,14 +24,20 @@ class GoogleCredentialProvider:
 
     def __init__(self, auth: GoogleCalendarAuthConfig):
         self._auth = auth
+        self._credentials = None
 
     def get(self):
+        # Si ya tenemos credenciales en caché, las devolvemos directamente
+        if self._credentials:
+            return self._credentials
+
+        # Si no hay caché, se valida y se crea la instancia
         if not (self._auth.client_id and self._auth.client_secret and self._auth.refresh_token):
             raise ValueError(
-                "Error al autenticar Google Calendar:"
+                "Error al autenticar Google Calendar: "
                 + "OAuth requiere client_id + client_secret + refresh_token."
             )
-        return Credentials(
+        self._credentials = Credentials(
             token=None,
             refresh_token=self._auth.refresh_token,
             token_uri=self._auth.token_uri,
@@ -39,3 +45,5 @@ class GoogleCredentialProvider:
             client_secret=self._auth.client_secret,
             scopes=SCOPES,
         )
+
+        return self._credentials
