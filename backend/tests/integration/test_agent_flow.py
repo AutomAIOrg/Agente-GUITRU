@@ -150,4 +150,4 @@ class TestAgentFlow:
 
         assert result.ok is True
         assert result.actions["event_id"] == "evt_R-999"
-        assert llm.calls == 2  # lo más importante: hubo replan real
+        assert llm.calls == 2  # Evalúa si se reintentó una vez más tras fallar

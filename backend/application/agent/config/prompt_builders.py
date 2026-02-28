@@ -29,8 +29,7 @@ Reglas:
             "input": dict,              // Inputs de tool. Seguir esquema dado en el catálogo.
             "rationale": str            // Justificación de uso de tool.
         }
-    ],
-    "max_steps": int                // Número de pasos del plan.
+    ]
 }
 """
             + f"""

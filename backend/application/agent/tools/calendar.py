@@ -53,8 +53,8 @@ def calendar_tool(calendar: CalendarPort) -> ToolSpec:
         instructions=(
             "Las fechas y horas deben ir en formato ISO 8601 completo, por ejemplo "
             "2026-03-04T19:00:00+01:00. Usa DIRECTAMENTE los valores checkin_iso y "
-            "checkout_iso del contexto para start_iso y end_iso, sin re-formatearlos."
+            "checkout_iso del contexto para start_iso y end_iso, sin re-formatearlos. "
             "La descripción debe estar bien estructurada (con saltos de línea adecuados) y "
-            "fácil de leer para el usuario. Las fechas deben ir en formato MM-DD HH:MM."
+            "fácil de leer para el usuario, con las fechas en formato MM-DD HH:MM."
         ),
     )
