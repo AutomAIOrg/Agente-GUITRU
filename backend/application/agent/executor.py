@@ -11,7 +11,14 @@ class Executor:
         observations: list[ToolObservation] = []
 
         for step in agent_plan.steps:
-            tool = self.tools.get(step.tool)
+            try:
+                tool = self.tools.get(step.tool)
+            except ToolError as e:
+                observations.append(
+                    ToolObservation(step_id=step.step_id, tool=step.tool, ok=False, error=str(e))
+                )
+                continue
+
             try:
                 result = tool.run(step.input)
                 observations.append(
