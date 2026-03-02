@@ -57,7 +57,11 @@ class TestAgentCalendarE2E:
         # --- LLM real ---
         # Ajusta según cómo guardes model en settings/env:
         llm = OpenAIAdapter(
-            OpenAIConfig(api_key=llm_settings.API_KEY, timeout_seconds=llm_settings.TIMEOUT_SECONDS)
+            OpenAIConfig(
+                api_key=llm_settings.API_KEY,
+                model=llm_settings.MODEL,
+                timeout_seconds=llm_settings.TIMEOUT_SECONDS,
+            )
         )
 
         # --- Calendar real (OAuth usuario) ---
