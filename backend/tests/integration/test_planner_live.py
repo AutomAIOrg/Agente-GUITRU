@@ -27,13 +27,13 @@ class TestPlannerLive:
           3) input contiene campos mínimos
 
         Para ejecutar:
-        RUN_LIVE_TESTS=1 OPENAI_API_KEY=... pytest -m live
+        RUN_LIVE_TESTS=1 LLM_OPENAI_API_KEY=... pytest -m live
         """
         if os.getenv("RUN_LIVE_TESTS") != "1":
             pytest.skip("Set RUN_LIVE_TESTS=1 para ejecutar tests live")
 
         api_key = os.getenv("LLM_OPENAI_API_KEY")
-        assert api_key, "Falta OPENAI_API_KEY en el entorno"
+        assert api_key, "Falta LLM_OPENAI_API_KEY en el entorno"
 
         llm = OpenAIAdapter(OpenAIConfig(api_key=api_key))
 

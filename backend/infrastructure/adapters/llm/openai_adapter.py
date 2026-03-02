@@ -18,7 +18,7 @@ class OpenAIConfig:
 class OpenAIAdapter(LLMPort):
     def __init__(self, config: OpenAIConfig):
         if not config.api_key:
-            raise ValueError("OPENAI_API_KEY no establecida.")
+            raise ValueError("LLM_OPENAI_API_KEY no establecida.")
 
         self._client = OpenAI(
             api_key=config.api_key,
