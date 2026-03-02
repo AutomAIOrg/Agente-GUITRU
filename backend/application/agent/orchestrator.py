@@ -29,11 +29,29 @@ class AgentOrchestrator:
 
         for _ in range(self.policies.max_iterations):
             # 1. Construcción del plan para la tarea "goal".
-            plan = self.planner.create_plan(goal=goal, context=context, feedback=feedback)
+            try:
+                plan = self.planner.create_plan(goal=goal, context=context, feedback=feedback)
+            except Exception as e:
+                trace.verifier_notes.append(f"Error al crear el plan: {e}")
+                feedback = (
+                    "Se produjo un error al crear el plan. "
+                    "Revisa el detalle del error, corrige y reintenta. "
+                    f"Detalle del error: {e}"
+                )
+                continue
             trace.plan = plan
 
             # 2. Ejecución del plan.
-            observations = self.executor.run_plan(agent_plan=plan)
+            try:
+                observations = self.executor.run_plan(agent_plan=plan)
+            except Exception as e:
+                trace.verifier_notes.append(f"Error al ejecutar el plan: {e}")
+                feedback = (
+                    "Se produjo un error al ejecutar el plan. "
+                    "Revisa el detalle del error, ajusta el plan o los parámetros y reintenta. "
+                    f"Detalle del error: {e}"
+                )
+                continue
             trace.observations = observations
 
             # 3. Comprobación de la ejecución.
