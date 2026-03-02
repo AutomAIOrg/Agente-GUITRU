@@ -19,6 +19,7 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-push]
+        args: ["--project", "backend/pyproject.toml"]
 
       - id: pytest
         name: pytest

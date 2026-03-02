@@ -60,12 +60,12 @@ jobs:
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h 172.18.0.1 -uuser_test -ppass_test"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uuser_test -ppass_test"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=20
     env:
-      DB_HOST: 172.18.0.1
+      DB_HOST: 127.0.0.1
       DB_PORT: 3306
       DB_USER: user_test
       DB_PASS: pass_test
