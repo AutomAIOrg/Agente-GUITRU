@@ -5,17 +5,29 @@
 ```
 backend/tests/
 ├── conftest.py                   # Fixtures globales (engine, sesiones BD)
+├── e2e/                          # (Reservado para pruebas end-to-end)
 ├── fixtures/
 │   ├── __init__.py
 │   └── factories.py              # MessageFactory, ReservationFactory
 ├── integration/
 │   ├── __init__.py
-│   └── test_sql_message_repository.py   # 8 tests de integración
+│   ├── test_sql_message_repository.py   # Tests de repositorio de mensajes
+│   └── test_sql_reservation_repository.py   # Tests de repositorio de reservas
 └── unit/
-    └── smoke_test.py             # 1 smoke test
+    ├── smoke_test.py             # Smoke test básico
+    ├── application/
+    │   └── uses_cases/
+    │       └── test_process_incoming_message.py
+    ├── domain/
+    │   ├── test_entities.py
+    │   └── test_value_objects.py
+    ├── infrastructure/
+    │   └── persistence/
+    │       ├── test_sql_message_repository.py
+    │       └── test_sql_reservation_repository.py
+    └── interface/
+        └── test_dependencies.py
 ```
-
-**Total: 9 tests | ~28s | 0 redundancias**
 
 ---
 
@@ -40,30 +52,23 @@ pytest -v -s
 
 ---
 
-## Tests de Integración (8 tests)
+## Tests de Integración
 
-Archivo: `integration/test_sql_message_repository.py`
+Las pruebas de integración usan conexión real a MySQL vía SQLAlchemy async, contra una base
+de datos de pruebas configurada en `.env.test`.
 
-Todos usan conexión real a MySQL vía SQLAlchemy async.
+- `integration/test_sql_message_repository.py`: pruebas de persistencia y constraints para mensajes.
+- `integration/test_sql_reservation_repository.py`: pruebas de persistencia y constraints para reservas.
 
-| # | Clase | Test | Qué protege |
-|---|---|---|---|
-| 1 | `TestConnectionAndSchema` | `test_connection_and_table_schema` | Conexión a BD + tabla `messages` existe con columnas correctas |
-| 2 | `TestSave` | `test_save_persists_all_fields_including_timestamp` | Todos los campos se persisten, incluido timestamp con timezone |
-| 3 | `TestSave` | `test_save_multiple_messages_with_different_roles` | Múltiples saves + roles USER/ASSISTANT diferenciados |
-| 4 | `TestConstraints` | `test_duplicate_id_raises_integrity_error` | PK rechaza duplicados, error se propaga |
-| 5 | `TestConstraints` | `test_null_required_field_raises_error` | NOT NULL rechaza datos inválidos |
-| 6 | `TestTransactions` | `test_rollback_discards_and_preserves_prior_data` | Rollback funciona, datos previos sobreviven |
-| 7 | `TestEdgeCases` | `test_empty_long_and_special_content` | Cadena vacía, 10k chars, emojis, CJK, árabe |
-| 8 | `TestVolume` | `test_batch_50_messages` | 50 mensajes sin degradación ni memory leaks |
+## Tests Unitarios
 
-## Test Unitario (1 test)
+En `backend/tests/unit/` se organizan los tests unitarios por capa:
 
-Archivo: `unit/smoke_test.py`
-
-| Test | Qué protege |
-|---|---|
-| `test_smoke` | Que pytest funciona y la suite se ejecuta |
+- `unit/domain/`: tests de entidades y value objects de dominio.
+- `unit/infrastructure/`: tests de repositorios SQL y adaptadores de persistencia.
+- `unit/interface/`: tests de dependencias de capa de interfaz.
+- `unit/application/`: tests de casos de uso.
+- `unit/smoke_test.py`: smoke test básico para comprobar que la suite arranca.
 
 ---
 
@@ -96,4 +101,5 @@ La config de pytest está en `pytest.ini` (raíz del proyecto):
 - `asyncio_default_fixture_loop_scope = function` — un event loop por test
 - Coverage automático con `--cov=backend`
 
-La conexión a BD se lee del `.env` en la raíz del proyecto.
+Para la aplicación se usa `.env` en la raíz del proyecto.  
+Las pruebas de integración de base de datos leen su configuración específica de `.env.test`.

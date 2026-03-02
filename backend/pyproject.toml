@@ -75,7 +75,3 @@ reportExplicitAny = "none"
 executionEnvironments = [
   { root = "." }
 ]
-
-[tool.pytest.ini_options]
-testpaths = ["backend/tests"]
-addopts = "-q"
