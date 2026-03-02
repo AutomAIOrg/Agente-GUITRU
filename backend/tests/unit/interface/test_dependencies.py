@@ -70,9 +70,9 @@ def test_get_llm_provider():
     # Mock LLMSettings
     mock_llm_settings = AsyncMock(
         spec=LLMSettings(
-            api_key="test_api_key",
-            model="test_model",
-            timeout_seconds=30,
+            API_KEY="test_api_key",
+            MODEL="test_model",
+            TIMEOUT_SECONDS=30,
         )
     )
     provider = get_llm_provider(mock_llm_settings)
