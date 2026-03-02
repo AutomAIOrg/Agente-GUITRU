@@ -96,8 +96,9 @@ class TestAgentCalendarE2E:
         reservation_id = f"E2E-{uuid.uuid4().hex[:8]}"
 
         # OJO: usa ISO con tz para evitar problemas de timezone
-        start_iso = str((datetime.now() + timedelta(days=3)).isoformat())
-        end_iso = str((datetime.now() + timedelta(days=7)).isoformat())
+        now = datetime.now().astimezone()
+        start_iso = str((now + timedelta(days=3)).isoformat())
+        end_iso = str((now + timedelta(days=7)).isoformat())
 
         goal = AgentGoal(
             name="sync_calendar",

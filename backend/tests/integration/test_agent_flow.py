@@ -1,3 +1,5 @@
+import pytest
+
 from ...application.agent.config.models import AgentContext, AgentGoal
 from ...application.agent.config.policies import AgentPolicies
 from ...application.agent.config.tool_registry import ToolRegistry
@@ -7,6 +9,8 @@ from ...application.agent.planner import Planner
 from ...application.agent.tools.calendar import calendar_tool
 from ...application.agent.verifier import Verifier
 from ..conftest import SequenceLLM
+
+pytestmark = pytest.mark.integration
 
 
 class TestAgentFlow:
@@ -68,7 +72,7 @@ class TestAgentFlow:
         goal = AgentGoal(
             name="sync_calendar",
             instructions=(
-                "Crea o actualiza el evento del calendario para la reserva.No incluyas DNI."
+                "Crea o actualiza el evento del calendario para la reserva. No incluyas DNI."
             ),
         )
         ctx = AgentContext(
