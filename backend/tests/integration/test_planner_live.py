@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import pytest
 from dotenv import load_dotenv
@@ -11,7 +12,11 @@ from ...application.agent.tools.calendar import calendar_tool
 from ...infrastructure.adapters.llm.openai_adapter import OpenAIAdapter, OpenAIConfig
 from ..conftest import InMemoryCalendar
 
-load_dotenv(override=True)
+_ROOT = Path(__file__).resolve().parents[3]
+env_path = _ROOT / ".env.test"
+
+load_dotenv(dotenv_path=env_path, override=True)
+
 pytestmark = pytest.mark.live
 
 
@@ -25,12 +30,7 @@ class TestPlannerLive:
           1) steps no vacío
           2) tool en allowlist
           3) input contiene campos mínimos
-
-        Para ejecutar:
-        RUN_LIVE_TESTS=1 LLM_OPENAI_API_KEY=... pytest -m live
         """
-        if os.getenv("RUN_LIVE_TESTS") != "1":
-            pytest.skip("Set RUN_LIVE_TESTS=1 para ejecutar tests live")
 
         api_key = os.getenv("LLM_OPENAI_API_KEY")
         assert api_key, "Falta LLM_OPENAI_API_KEY en el entorno"

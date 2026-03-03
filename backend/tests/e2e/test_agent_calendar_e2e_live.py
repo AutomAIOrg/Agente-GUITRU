@@ -1,10 +1,8 @@
-import os
 import uuid
 from contextlib import suppress
 from datetime import datetime, timedelta
 
 import pytest
-from dotenv import load_dotenv
 from googleapiclient.discovery import build
 
 from ...application.agent.config.models import AgentContext, AgentGoal
@@ -31,7 +29,6 @@ from ...infrastructure.config.llm_settings import get_llm_settings
 
 # ================================================
 
-load_dotenv(override=True)
 pytestmark = [pytest.mark.live, pytest.mark.e2e]
 
 
@@ -44,12 +41,6 @@ class TestAgentCalendarE2E:
     """
 
     def test_agent_crea_evento_en_google_calendar_e2e(self):
-        # --- gating (evitar coste/flakiness en CI por accidente) ---
-        if os.getenv("RUN_LIVE_TESTS", "0") != "1":
-            pytest.skip("Activa RUN_LIVE_TESTS=1 para ejecutar tests live")
-        if os.getenv("RUN_E2E_TESTS", "0") != "1":
-            pytest.skip("Activa RUN_E2E_TESTS=1 para ejecutar tests e2e")
-
         # --- settings ---
         cal_settings = get_calendar_settings()
         llm_settings = get_llm_settings()

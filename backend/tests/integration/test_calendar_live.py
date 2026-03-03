@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timedelta
 
 import pytest
@@ -7,9 +6,6 @@ pytestmark = pytest.mark.live
 
 
 def test_google_calendar_adapter_upsert_live():
-    if os.getenv("RUN_LIVE_TESTS") != "1":
-        pytest.skip("Activa RUN_LIVE_TESTS=1 para ejecutar")
-
     # Importa tus settings/adapters reales (ajusta rutas)
     from ...infrastructure.adapters.calendar.google_calendar_adapter import (
         GoogleCalendarAdapter,
