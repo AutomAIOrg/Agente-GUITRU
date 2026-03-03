@@ -31,3 +31,8 @@ Thumbs.db
 .idea/
 .vscode/
 *:Zone.Identifier
+
+# Secrets
+secrets/
+client_secret.json
+token.json

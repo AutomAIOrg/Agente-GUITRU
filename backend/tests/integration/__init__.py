@@ -1,3 +1,2 @@
-"""
-Fixtures y configuración para tests de integración.
-"""
+# Test suite de integración
+

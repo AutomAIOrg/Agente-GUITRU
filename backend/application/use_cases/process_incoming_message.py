@@ -4,7 +4,6 @@ Recupera el mensaje más antiguo en la cola de mensajes entrantes y lo procesa.
 
 from asyncio import Queue
 from datetime import datetime
-from typing import Any
 from uuid import uuid4
 
 from ...domain.entities.message import Message, Role
@@ -12,7 +11,7 @@ from ...domain.repositories.message_repository import MessageRepository
 
 
 class ProcessIncomingMessageUseCase:
-    def __init__(self, message_repository: MessageRepository, message_queue: Queue[Any]):
+    def __init__(self, message_repository: MessageRepository, message_queue: Queue[Message]):
         self.message_repository = message_repository
         self.message_queue = message_queue
 

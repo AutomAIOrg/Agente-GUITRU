@@ -1,9 +1,27 @@
-sqlalchemy>=2.0,<3
+# Data validation and settings
+pydantic==2.9.2
+pydantic-settings==2.6.0
+
+# Core API framework
+fastapi==0.115.0
+
+# Database
+sqlalchemy==2.0.43
 asyncmy>=0.2.9
-pydantic>=2.9.2
-pydantic-settings>=2.6.0
-fastapi>=0.115.0
-cryptography
+cryptography==46.0.5
+#alembic==1.13.1
+
+# Environment configuration
+python-dotenv==1.0.1
+
+# AI and LLM
+openai==1.106.1
+
+# Google Calendar
+google-api-python-client==2.188.0
+google-auth==2.48.0
+google-auth-oauthlib==1.2.4
+google-auth-httplib2==0.3.0
 
 # Testing
 pytest>=8.3.3

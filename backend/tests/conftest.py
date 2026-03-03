@@ -9,9 +9,13 @@ import sys
 import urllib.parse
 from collections.abc import AsyncGenerator
 from contextlib import suppress
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
+import pytest
 import pytest_asyncio
+from pydantic import BaseModel
 from pydantic_settings import SettingsConfigDict
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -20,6 +24,8 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from ..application.interfaces.calendar import CalendarPort
+from ..application.interfaces.llm import LLMPort
 from ..infrastructure.config.settings_db import SettingsDB
 from ..infrastructure.models.base import Base
 
@@ -28,6 +34,7 @@ from ..infrastructure.models.base import Base
 _ROOT = str(Path(__file__).resolve().parent.parent.parent)
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
+
 
 # ==================== BASE DE DATOS DE TEST ====================
 
@@ -148,3 +155,62 @@ async def clean_db_session(test_engine: AsyncEngine) -> AsyncGenerator[AsyncSess
             # Asegurar que los FK checks se reactivan incluso si algo falla
             with suppress(Exception):
                 await session.execute(text("SET FOREIGN_KEY_CHECKS = 1"))
+
+
+# ==================== FAKE LLM ====================
+
+
+class SequenceLLM(LLMPort):
+    """
+    Fake LLM: devuelve outputs (dict) en secuencia.
+    Cada output se valida contra el schema Pydantic que pide el Planner.
+    """
+
+    def __init__(self, outputs: list[dict[str, Any]]):
+        self._outputs = outputs
+        self.calls: int = 0
+
+    def generate_plan(self, system: str, user: str, schema: type[BaseModel]) -> BaseModel:
+        if self.calls >= len(self._outputs):
+            raise RuntimeError("SequenceLLM: no hay más outputs configurados")
+        data = self._outputs[self.calls]
+        self.calls += 1
+        return schema.model_validate(data)
+
+
+# ==================== FAKE CALENDAR ====================
+
+
+@dataclass
+class InMemoryCalendar(CalendarPort):
+    """
+    Fake calendar: simula upsert idempotente en memoria.
+    """
+
+    store: dict[str, str]
+
+    def upsert_reservation_event(
+        self,
+        *,
+        reservation_id: str,
+        start_iso: str,
+        end_iso: str,
+        title: str,
+        description: str,
+        calendar_id: str | None = None,
+    ) -> str:
+        """
+        Idempotente por reservation_id: devuelve el mismo
+        event_id para el mismo reservation_id.
+        """
+        if reservation_id in self.store:
+            return self.store[reservation_id]
+
+        event_id = f"evt_{reservation_id}"
+        self.store[reservation_id] = event_id
+        return event_id
+
+
+@pytest.fixture
+def fake_calendar() -> InMemoryCalendar:
+    return InMemoryCalendar(store={})
