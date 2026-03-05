@@ -2,11 +2,14 @@ from typing import cast
 
 from pydantic import BaseModel, Field
 
+from ...shared.logging.logging_config import get_logger
 from ..interfaces.llm import LLMPort
 from .config.models import AgentContext, AgentGoal, AgentPlan, PlanStep
 from .config.policies import AgentPolicies
 from .config.prompt_builders import PlannerPromptBuilder
 from .config.tool_registry import ToolRegistry
+
+logger = get_logger(__name__)
 
 
 class _PlannerOutput(BaseModel):
@@ -31,6 +34,8 @@ class Planner:
     ) -> AgentPlan:
         """Creación del plan para la tarea a desarrollar."""
 
+        logger.debug("Creando plan: goal=%s feedback=%s", goal.name, bool(feedback))
+
         # 1. Construcción de prompts
         prompt_builder = PlannerPromptBuilder()
         system_prompt = prompt_builder.get_system_prompt(self.tools, self.policies)
@@ -48,4 +53,5 @@ class Planner:
             agent_plan.steps = agent_plan.steps[: self.policies.max_steps]
 
         # 4. Retornar plan
+        logger.info("Plan creado: %d pasos", len(agent_plan.steps))
         return agent_plan

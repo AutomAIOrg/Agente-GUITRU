@@ -6,7 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...domain.entities.reservation import Reservation
 from ...domain.repositories.reservation_repository import ReservationRepository
+from ...shared.logging.logging_config import get_logger
 from ..models.reservation_model import ReservationModel
+
+logger = get_logger(__name__)
 
 
 class SQLReservationRepository(ReservationRepository):
@@ -17,6 +20,8 @@ class SQLReservationRepository(ReservationRepository):
         """
         Guardar un reserva en la base de datos.
         """
+        logger.debug("Guardando reserva: id=%s", reservation.id)
+
         person_name = (
             f"{reservation.person_name.last_name}, {reservation.person_name.first_name}".strip()
         )
@@ -36,7 +41,9 @@ class SQLReservationRepository(ReservationRepository):
         try:
             await self.db_session.commit()
             await self.db_session.refresh(db_reservation)
+            logger.debug("Reserva guardada: id=%s", reservation.id)
 
-        except Exception:
+        except Exception as e:
             await self.db_session.rollback()
+            logger.error("Error al guardar reserva id=%s: %s", reservation.id, e)
             raise

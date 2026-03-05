@@ -3,7 +3,10 @@ from abc import ABC, abstractmethod
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
+from ....shared.logging.logging_config import get_logger
 from .database_adapter import DatabaseAdapter
+
+logger = get_logger(__name__)
 
 
 class BaseSQLAlchemyAdapter(DatabaseAdapter, ABC):
@@ -22,6 +25,7 @@ class BaseSQLAlchemyAdapter(DatabaseAdapter, ABC):
             self._session_factory = async_sessionmaker(
                 bind=self._engine, class_=AsyncSession, expire_on_commit=False
             )
+            logger.info("Conexión a la base de datos establecida")
 
     async def disconnect(self) -> None:
         """Desconectar de la base de datos."""
@@ -29,6 +33,7 @@ class BaseSQLAlchemyAdapter(DatabaseAdapter, ABC):
             await self._engine.dispose()
             self._engine = None
             self._session_factory = None
+            logger.info("Conexión a la base de datos cerrada")
 
     async def get_session(self) -> AsyncSession:
         """Obtener una sesión asíncrona de base de datos."""
@@ -43,10 +48,12 @@ class BaseSQLAlchemyAdapter(DatabaseAdapter, ABC):
         """Comprobación del health de la conexión a la base de datos."""
         try:
             if self._engine is None:
+                logger.warning("Health check fallido: engine no inicializado")
                 return False
 
             async with self._engine.connect() as conn:
                 await conn.execute(text("SELECT 1"))
             return True
-        except Exception:
+        except Exception as e:
+            logger.error("Health check fallido: %s", e)
             return False

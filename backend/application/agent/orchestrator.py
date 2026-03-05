@@ -1,8 +1,11 @@
+from ...shared.logging.logging_config import get_logger
 from .config.models import AgentContext, AgentGoal, AgentResult, AgentRunTrace, ToolObservation
 from .config.policies import AgentPolicies
 from .executor import Executor
 from .planner import Planner
 from .verifier import Verifier
+
+logger = get_logger(__name__)
 
 
 class AgentOrchestrator:
@@ -24,14 +27,22 @@ class AgentOrchestrator:
         Ejecuta los pasos: Plan > Execute > Verify.
         """
         trace = AgentRunTrace(goal=goal, context=context)
-
         feedback = None
 
-        for _ in range(self.policies.max_iterations):
+        logger.info(
+            "Iniciando agente: goal=%s reservation_id=%s",
+            goal.name,
+            context.reservation_id,
+        )
+
+        for iteration in range(self.policies.max_iterations):
+            logger.debug("Iteración %d/%d", iteration + 1, self.policies.max_iterations)
+
             # 1. Construcción del plan para la tarea "goal".
             try:
                 plan = self.planner.create_plan(goal=goal, context=context, feedback=feedback)
             except Exception as e:
+                logger.warning("Error al crear el plan (iter %d): %s", iteration + 1, e)
                 trace.verifier_notes.append(f"Error al crear el plan: {e}")
                 feedback = (
                     "Se produjo un error al crear el plan. "
@@ -45,6 +56,7 @@ class AgentOrchestrator:
             try:
                 observations = self.executor.run_plan(agent_plan=plan)
             except Exception as e:
+                logger.warning("Error al ejecutar el plan (iter %d): %s", iteration + 1, e)
                 trace.verifier_notes.append(f"Error al ejecutar el plan: {e}")
                 feedback = (
                     "Se produjo un error al ejecutar el plan. "
@@ -61,9 +73,21 @@ class AgentOrchestrator:
             # 4. Verificación si se ha aprobado.
             if verification.approved:
                 actions = self._summarize_actions(observations=observations)
+                logger.info(
+                    "Agente completado: goal=%s actions=%s",
+                    goal.name,
+                    list(actions.keys()))
+
                 return AgentResult(ok=True, actions=actions, trace=trace)
 
+            logger.warning("Plan rechazado (iter %d): %s", iteration + 1, verification.notes)
             feedback = verification.feedback or "Ha ocurrido un problema. Corrige el plan."
+
+        logger.error(
+            "Agente fallido tras %d iteraciones: goal=%s",
+            self.policies.max_iterations,
+            goal.name
+        )
 
         return AgentResult(ok=False, reason="No aprobado tras reintentos.", trace=trace)
 
