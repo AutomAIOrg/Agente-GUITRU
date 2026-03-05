@@ -24,6 +24,7 @@ async def test_save_message():
     message = Message(
         id=str(uuid4()),
         user_id="user123",
+        provider_message_id="wamid.TEST",
         timestamp=datetime.now(),
         role=Role.USER,
         content="Hello!",
@@ -49,6 +50,7 @@ async def test_save_message_rollback_on_error():
     message = Message(
         id=str(uuid4()),
         user_id="user123",
+        provider_message_id="wamid.TEST",
         timestamp=datetime.now(),
         role=Role.USER,
         content="Hello!",

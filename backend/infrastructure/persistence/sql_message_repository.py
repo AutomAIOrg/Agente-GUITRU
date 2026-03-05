@@ -21,6 +21,7 @@ class SQLMessageRepository(MessageRepository):
         db_message = MessagesModel(
             id=message.id,
             user_id=message.user_id,
+            provider_message_id=message.provider_message_id,
             timestamp=message.timestamp,
             role=message.role.value,
             content=message.content,

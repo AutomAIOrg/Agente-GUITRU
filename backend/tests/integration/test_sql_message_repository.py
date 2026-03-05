@@ -67,6 +67,7 @@ class TestSave:
         message = MessageFactory.create(
             id=message_id,
             user_id="user-456",
+            provider_message_id="wamid.TEST",
             timestamp=ts,
             role=Role.ASSISTANT,
             content="Contenido de prueba",

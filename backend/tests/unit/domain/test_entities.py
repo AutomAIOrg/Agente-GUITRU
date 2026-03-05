@@ -16,14 +16,24 @@ pytestmark = [
 
 def test_message_is_valid():
     message = Message(
-        id="1", user_id="user123", timestamp=datetime.now(), role=Role.USER, content="Hello"
+        id="1",
+        user_id="user123",
+        provider_message_id="wamid.TEST",
+        timestamp=datetime.now(),
+        role=Role.USER,
+        content="Hello",
     )
     assert message.is_valid is True
 
 
 def test_message_invalid_content():
     message = Message(
-        id="1", user_id="user123", timestamp=datetime.now(), role=Role.USER, content=""
+        id="1",
+        user_id="user123",
+        provider_message_id="wamid.TEST",
+        timestamp=datetime.now(),
+        role=Role.USER,
+        content="",
     )
     assert message.is_valid is False
 
