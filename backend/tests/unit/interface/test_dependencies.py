@@ -1,4 +1,3 @@
-from asyncio import Queue
 from unittest.mock import AsyncMock
 
 import pytest
@@ -17,14 +16,16 @@ from backend.application.use_cases.process_incoming_message import ProcessIncomi
 from backend.domain.repositories.message_repository import MessageRepository
 from backend.infrastructure.adapters.calendar.google_calendar_adapter import GoogleCalendarAdapter
 from backend.infrastructure.adapters.llm.openai_adapter import OpenAIAdapter
+from backend.infrastructure.adapters.queue.asyncio_adapter import AsyncioQueueAdapter
 from backend.infrastructure.config.agent_settings import AgentSettings
 from backend.infrastructure.config.calendar_settings import CalendarSettings
 from backend.infrastructure.config.llm_settings import LLMSettings
+from backend.infrastructure.config.queue_settings import QueueSettings
 from backend.infrastructure.persistence.sql_message_repository import SQLMessageRepository
 from backend.infrastructure.persistence.sql_reservation_repository import SQLReservationRepository
 from backend.interface.dependencies import (
     get_agent_orchestrator,
-    get_calendar_port,
+    get_calendar_adapter,
     get_executor,
     get_generic_uc,
     get_llm_provider,
@@ -66,6 +67,15 @@ def test_get_reservation_repository():
     assert repository.db_session == mock_session
 
 
+def test_get_queue_adapter():
+    # Mock QueueSettings
+    mock_queue_settings = AsyncMock(QueueSettings(MAX_SIZE=100))
+    queue_adapter = AsyncioQueueAdapter(mock_queue_settings)
+
+    # Verificar que devuelve una instancia de AsyncioQueueAdapter
+    assert isinstance(queue_adapter, AsyncioQueueAdapter)
+
+
 def test_get_llm_provider():
     # Mock LLMSettings
     mock_llm_settings = AsyncMock(
@@ -81,7 +91,7 @@ def test_get_llm_provider():
     assert isinstance(provider, OpenAIAdapter)
 
 
-def test_get_calendar_port():
+def test_get_calendar_adapter():
     # Mock CalendarSettings
     mock_calendar_settings = AsyncMock(
         spec=CalendarSettings(
@@ -94,7 +104,7 @@ def test_get_calendar_port():
             OAUTH_TOKEN_URI="https://oauth2.googleapis.com/token",
         )
     )
-    provider = get_calendar_port(mock_calendar_settings)
+    provider = get_calendar_adapter(mock_calendar_settings)
 
     # Verificar que devuelve una instancia de GoogleCalendarAdapter
     assert isinstance(provider, GoogleCalendarAdapter)
@@ -176,18 +186,15 @@ def test_get_agent_orchestrator():
 def test_get_process_incoming_message_uc():
     # Mock dependencias
     mock_message_repository = AsyncMock(spec=MessageRepository)
-    message_queue = AsyncMock(spec=Queue)
 
     # Llamar a la función
     use_case = get_process_incoming_message_uc(
         message_repository=mock_message_repository,
-        message_queue=message_queue,
     )
 
     # Verificar que devuelve una instancia de ProcessIncomingMessageUseCase
     assert isinstance(use_case, ProcessIncomingMessageUseCase)
     assert use_case.message_repository == mock_message_repository
-    assert use_case.message_queue == message_queue
 
 
 def test_get_generic_uc():
