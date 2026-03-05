@@ -4,6 +4,7 @@ pydantic-settings==2.6.0
 
 # Core API framework
 fastapi==0.115.0
+uvicorn[standard]==0.41.0
 
 # Database
 sqlalchemy==2.0.43
