@@ -32,9 +32,7 @@ class ProcessIncomingMessageUseCase:
 
         if message:
             logger.debug(
-                "Mensaje recibido: user_id=%s content='%.50s'",
-                message.user_id,
-                message.content
+                "Mensaje recibido: user_id=%s content='%.50s'", message.user_id, message.content
             )
 
             # Construcción del mensaje
@@ -55,7 +53,7 @@ class ProcessIncomingMessageUseCase:
             logger.info(
                 "Mensaje procesado y guardado: id=%s user_id=%s",
                 message_processed.id,
-                message_processed.user_id
+                message_processed.user_id,
             )
 
             return message_processed

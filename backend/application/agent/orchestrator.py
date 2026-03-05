@@ -74,9 +74,8 @@ class AgentOrchestrator:
             if verification.approved:
                 actions = self._summarize_actions(observations=observations)
                 logger.info(
-                    "Agente completado: goal=%s actions=%s",
-                    goal.name,
-                    list(actions.keys()))
+                    "Agente completado: goal=%s actions=%s", goal.name, list(actions.keys())
+                )
 
                 return AgentResult(ok=True, actions=actions, trace=trace)
 
@@ -84,9 +83,7 @@ class AgentOrchestrator:
             feedback = verification.feedback or "Ha ocurrido un problema. Corrige el plan."
 
         logger.error(
-            "Agente fallido tras %d iteraciones: goal=%s",
-            self.policies.max_iterations,
-            goal.name
+            "Agente fallido tras %d iteraciones: goal=%s", self.policies.max_iterations, goal.name
         )
 
         return AgentResult(ok=False, reason="No aprobado tras reintentos.", trace=trace)
