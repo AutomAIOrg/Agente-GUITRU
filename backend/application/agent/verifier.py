@@ -1,5 +1,8 @@
+from ...shared.logging.logging_config import get_logger
 from .config.models import ToolObservation
 from .config.policies import AgentPolicies
+
+logger = get_logger(__name__)
 
 
 class VerificationResult:
@@ -16,15 +19,14 @@ class Verifier:
     def verify(self, observations: list[ToolObservation]) -> VerificationResult:
         notes: list[str] = []
 
-        # 1. Extracción de ejecuciones fallidas de herramientas
         failed_tools = [observation for observation in observations if not observation.ok]
 
-        # 2. Si hay fallos, reelaborar el plan
         if failed_tools:
             notes.append(
                 f"Fallaron {len(failed_tools)} pasos: "
                 + ", ".join(f"{f.tool}: {f.error}" for f in failed_tools)
             )
+            logger.warning("Verificación rechazada: %d pasos fallidos", len(failed_tools))
             return VerificationResult(
                 approved=False,
                 notes=notes,
@@ -34,5 +36,5 @@ class Verifier:
                 ),
             )
 
-        # 3. Si no hay fallos, retornar verificación OK
+        logger.debug("Verificación aprobada: %d pasos OK", len(observations))
         return VerificationResult(approved=True, notes=["OK"])

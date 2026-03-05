@@ -8,6 +8,9 @@ from uuid import uuid4
 
 from ...domain.entities.message import Message, Role
 from ...domain.repositories.message_repository import MessageRepository
+from ...shared.logging.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 class ProcessIncomingMessageUseCase:
@@ -19,14 +22,20 @@ class ProcessIncomingMessageUseCase:
         try:
             # Recuperar el mensaje más antiguo en la cola
             message = await self.message_queue.get()
-        except Exception:
-            # Manejar el caso en que no hay mensajes en la cola
+        except Exception as e:
+            logger.warning("Error al obtener mensaje de la cola: %s", e)
             return None
 
-        # Procesar el mensaje recuperado
+        if not message:
+            logger.debug("Mensaje vacío recibido, ignorando")
+            return None
 
-        # 1. Construir mensaje
         if message:
+            logger.debug(
+                "Mensaje recibido: user_id=%s content='%.50s'", message.user_id, message.content
+            )
+
+            # Construcción del mensaje
             message_processed = Message(
                 id=str(uuid4()),
                 user_id=message.user_id,
@@ -34,12 +43,18 @@ class ProcessIncomingMessageUseCase:
                 role=Role.USER,
                 content=message.content,
             )
+
             if not message_processed.is_valid:
+                logger.warning("Mensaje inválido descartado: user_id=%s", message.user_id)
                 return None
 
-            # 2. Guardar en BBDD
+            # Guardar el mensaje procesado en la base de datos
             await self.message_repository.save(message_processed)
+            logger.info(
+                "Mensaje procesado y guardado: id=%s user_id=%s",
+                message_processed.id,
+                message_processed.user_id,
+            )
 
             return message_processed
-
         return None
