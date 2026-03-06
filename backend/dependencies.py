@@ -27,5 +27,9 @@ async def get_db_session(
     session = await adapter.get_session()
     try:
         yield session
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        raise
     finally:
         await session.close()

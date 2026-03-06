@@ -2,8 +2,12 @@ import asyncio
 import logging
 from contextlib import suppress
 
+from backend.application.dtos.whatsapp_incoming_message import WhatsappIncomingMessage
 from backend.application.interfaces.message_queue import MessageQueuePort
 from backend.application.use_cases.process_incoming_message import ProcessIncomingMessageUseCase
+from backend.domain.repositories.message_repository import MessageRepository
+from backend.infrastructure.persistence.adapters.base_sqlalchemy_adapter import DatabaseAdapter
+from backend.infrastructure.persistence.sql_message_repository import SQLMessageRepository
 
 logger = logging.getLogger("orchestrator")
 
@@ -11,11 +15,9 @@ logger = logging.getLogger("orchestrator")
 class Orchestrator:
     """Orquestador para gestionar el flujo del programa."""
 
-    def __init__(
-        self, queue: MessageQueuePort, process_incoming_message_uc: ProcessIncomingMessageUseCase
-    ):
+    def __init__(self, queue: MessageQueuePort, db: DatabaseAdapter):
         self._queue = queue
-        self._process_incomming_message_uc = process_incoming_message_uc
+        self._db = db
         self._task_queue_consumer: asyncio.Task[None] | None = None
         self._stop_event = asyncio.Event()
 
@@ -43,10 +45,20 @@ class Orchestrator:
 
     async def _run_queue_consumer(self) -> None:
         while not self._stop_event.is_set():
-            try:
-                message = await self._queue.get()
-                await self._process_incomming_message_uc.execute(message)
-            except asyncio.CancelledError:
-                raise
-            except Exception:
-                logger.exception("Error procesando item de la cola.")
+            message = await self._queue.get()
+            await self._handle_message(message)
+
+    async def _handle_message(self, msg: WhatsappIncomingMessage) -> None:
+        session = await self._db.get_session()
+        try:
+            message_repository: MessageRepository = SQLMessageRepository(db_session=session)
+            process_incoming_mesage_uc = ProcessIncomingMessageUseCase(
+                message_repository=message_repository
+            )
+            await process_incoming_mesage_uc.execute(msg)
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            logger.exception("Error procesando mensaje %s", getattr(msg, "message_id", None))
+        finally:
+            await session.close()

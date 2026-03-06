@@ -170,4 +170,4 @@ class TestWhatsAppWebhook:
         assert msg.from_phone == "34600000000"
         assert msg.content == "Hola desde test"
         assert msg.message_id == "wamid.TEST"
-        assert msg.timestamp == "1710000000"
+        assert msg.timestamp == 1710000000
