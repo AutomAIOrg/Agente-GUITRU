@@ -38,7 +38,7 @@ class MessageFactory:
         return Message(
             id=id or str(uuid4()),
             user_id=user_id or str(uuid4()),
-            provider_message_id=provider_message_id or None,
+            provider_message_id=provider_message_id or "",
             timestamp=timestamp or datetime.now(UTC),
             role=role or Role.USER,
             content=fake.sentence(nb_words=10) if content is None else content,

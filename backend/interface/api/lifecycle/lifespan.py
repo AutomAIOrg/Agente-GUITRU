@@ -2,8 +2,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from backend.interface.api.lifecycle.orchestrator import Orchestrator
-from backend.interface.dependencies import get_process_incoming_message_uc, get_queue_adapter
+from ...dependencies import get_process_incoming_message_uc, get_queue_adapter
+from ..lifecycle.orchestrator import Orchestrator
 
 
 @asynccontextmanager
@@ -12,7 +12,7 @@ async def lifespan(app: FastAPI):
     process_incoming_message_uc = get_process_incoming_message_uc()
 
     orchestrator = Orchestrator(
-        queue=queue, process_incoming_messace_uc=process_incoming_message_uc
+        queue=queue, process_incoming_message_uc=process_incoming_message_uc
     )
     app.state.orchestrator = orchestrator
 

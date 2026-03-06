@@ -20,7 +20,7 @@ class ProcessIncomingMessageUseCase:
             id=str(uuid4()),
             user_id=message.from_phone,
             provider_message_id=message.message_id,
-            timestamp=datetime.fromtimestamp(int(message.timestamp)),
+            timestamp=datetime.fromtimestamp(message.timestamp),
             role=Role.USER,
             content=message.content,
         )

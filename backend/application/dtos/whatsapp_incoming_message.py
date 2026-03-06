@@ -5,5 +5,5 @@ from dataclasses import dataclass
 class WhatsappIncomingMessage:
     message_id: str
     from_phone: str
-    timestamp: str | None
+    timestamp: int
     content: str

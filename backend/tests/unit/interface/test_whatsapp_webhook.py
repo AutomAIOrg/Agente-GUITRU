@@ -28,8 +28,8 @@ class TestWhatsAppWebhook:
     """
 
     def _build_app(
-        self, *, queue: Queue, verify_token: str, app_secret: str
-    ) -> tuple[FastAPI, TestClient]:
+        self, *, queue: Queue[WhatsappIncomingMessage], verify_token: str, app_secret: str
+    ) -> TestClient:
         """
         Construye una FastAPI mínima para testear el router del webhook.
         Inyecta overrides de dependencias para que:
@@ -110,7 +110,7 @@ class TestWhatsAppWebhook:
 
         resp = client.post(
             "/webhooks/whatsapp",
-            data=raw,
+            content=raw,
             headers={
                 "Content-Type": "application/json",
                 "X-Hub-Signature-256": "sha256=WRONG_SIGNATURE",
@@ -155,7 +155,7 @@ class TestWhatsAppWebhook:
 
         resp = client.post(
             "/webhooks/whatsapp",
-            data=raw,
+            content=raw,
             headers={
                 "Content-Type": "application/json",
                 "X-Hub-Signature-256": signature,

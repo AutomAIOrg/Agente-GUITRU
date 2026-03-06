@@ -16,12 +16,12 @@ class Orchestrator:
     ):
         self._queue = queue
         self._process_incomming_message_uc = process_incoming_message_uc
-        self._task_queue_consumer: asyncio.Task | None = None
+        self._task_queue_consumer: asyncio.Task[None] | None = None
         self._stop_event = asyncio.Event()
 
     async def start(self) -> None:
         """Crea tareas para la ejecución del orquestador."""
-        if self._task is None:
+        if self._task_queue_consumer is not None:
             return
         self._stop_event.clear()
         self._task_queue_consumer = asyncio.create_task(
@@ -45,7 +45,7 @@ class Orchestrator:
         while not self._stop_event.is_set():
             try:
                 message = await self._queue.get()
-                await self._process_incomming_message_uc(message)
+                await self._process_incomming_message_uc.execute(message)
             except asyncio.CancelledError:
                 raise
             except Exception:

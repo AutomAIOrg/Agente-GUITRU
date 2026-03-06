@@ -24,7 +24,7 @@ async def test_execute_valid_message():
     valid_input_message = WhatsappIncomingMessage(
         message_id="wamid.TEST",
         from_phone="34600000000",
-        timestamp=str(int(datetime.now().timestamp())),
+        timestamp=int(datetime.now().timestamp()),
         content="Hello!",
     )
 
@@ -48,7 +48,7 @@ async def test_execute_invalid_message():
     invalid_input_message = WhatsappIncomingMessage(
         message_id="wamid.TEST",
         from_phone="34600000000",
-        timestamp=str(int(datetime.now().timestamp())),
+        timestamp=int(datetime.now().timestamp()),
         content="",
     )
 

@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 import logging
-from typing import Annotated, Any
+from typing import Annotated, Any, cast
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 
@@ -63,9 +63,9 @@ async def receive_whatsapp_webhook(
     text_messages = _extract_text_messages(payload)
     for msg in text_messages:
         dto = WhatsappIncomingMessage(
-            message_id=msg.get("id"),
-            from_phone=msg.get("from"),
-            timestamp=msg.get("timestamp"),
+            message_id=cast(str, msg.get("id")),
+            from_phone=cast(str, msg.get("from")),
+            timestamp=int(cast(str, msg.get("timestamp"))),
             content=(msg.get("text") or {}).get("body", ""),
         )
 
