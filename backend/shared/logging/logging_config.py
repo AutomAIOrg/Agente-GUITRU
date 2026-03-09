@@ -1,12 +1,13 @@
 import logging
 import sys
 from functools import lru_cache
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class LogSettings(BaseSettings):
-    LOG_LEVEL: str = "DEBUG"
+    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "DEBUG"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
@@ -25,7 +26,7 @@ def get_logger(name: str) -> logging.Logger:
 def configure_logging() -> None:
     settings = get_log_settings()
     logging.basicConfig(
-        level=settings.LOG_LEVEL.upper(),
+        level=settings.LOG_LEVEL,
         format="%(levelname)s %(asctime)s %(name)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         stream=sys.stdout,
