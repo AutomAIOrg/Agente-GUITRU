@@ -16,6 +16,11 @@ def get_log_settings() -> LogSettings:
     return LogSettings()
 
 
+def get_logger(name: str) -> logging.Logger:
+    return logging.getLogger(name)
+
+# Esta configuración de logging se puede llamar al inicio de la aplicación
+# para configurar el logging globalmente.
 def configure_logging() -> None:
     settings = get_log_settings()
     logging.basicConfig(
@@ -26,6 +31,4 @@ def configure_logging() -> None:
         force=True,
     )
 
-
-def get_logger(name: str) -> logging.Logger:
-    return logging.getLogger(name)
+configure_logging() # Eliminar esta línea cuando se tenga main o app.

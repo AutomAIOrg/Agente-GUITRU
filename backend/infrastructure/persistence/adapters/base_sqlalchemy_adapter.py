@@ -54,6 +54,6 @@ class BaseSQLAlchemyAdapter(DatabaseAdapter, ABC):
             async with self._engine.connect() as conn:
                 await conn.execute(text("SELECT 1"))
             return True
-        except Exception as e:
-            logger.error("Health check fallido: %s", e)
+        except Exception:
+            logger.exception("Health check fallido")
             return False

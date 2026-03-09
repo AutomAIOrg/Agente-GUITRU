@@ -43,7 +43,7 @@ class SQLReservationRepository(ReservationRepository):
             await self.db_session.refresh(db_reservation)
             logger.debug("Reserva guardada: id=%s", reservation.id)
 
-        except Exception as e:
+        except Exception:
             await self.db_session.rollback()
-            logger.error("Error al guardar reserva id=%s: %s", reservation.id, e)
+            logger.exception("Error al guardar reserva id=%s", reservation.id)
             raise

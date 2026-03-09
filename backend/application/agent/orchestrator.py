@@ -42,7 +42,7 @@ class AgentOrchestrator:
             try:
                 plan = self.planner.create_plan(goal=goal, context=context, feedback=feedback)
             except Exception as e:
-                logger.warning("Error al crear el plan (iter %d): %s", iteration + 1, e)
+                logger.exception("Error al crear el plan (iter %d): %s", iteration + 1, e)
                 trace.verifier_notes.append(f"Error al crear el plan: {e}")
                 feedback = (
                     "Se produjo un error al crear el plan. "
@@ -56,7 +56,7 @@ class AgentOrchestrator:
             try:
                 observations = self.executor.run_plan(agent_plan=plan)
             except Exception as e:
-                logger.warning("Error al ejecutar el plan (iter %d): %s", iteration + 1, e)
+                logger.exception("Error al ejecutar el plan (iter %d): %s", iteration + 1, e)
                 trace.verifier_notes.append(f"Error al ejecutar el plan: {e}")
                 feedback = (
                     "Se produjo un error al ejecutar el plan. "

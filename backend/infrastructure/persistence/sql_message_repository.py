@@ -37,7 +37,7 @@ class SQLMessageRepository(MessageRepository):
             await self.db_session.commit()
             logger.debug("Mensaje guardado: id=%s", message.id)
 
-        except Exception as e:
+        except Exception:
             await self.db_session.rollback()
-            logger.error("Error al guardar mensaje id=%s: %s", message.id, e)
+            logger.exception("Error al guardar mensaje id=%s", message.id)
             raise
