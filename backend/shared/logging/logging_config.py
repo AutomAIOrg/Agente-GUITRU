@@ -31,4 +31,5 @@ def configure_logging() -> None:
         force=True,
     )
 
-configure_logging() # Eliminar esta línea cuando se tenga main o app.
+# Eliminar esta línea cuando se tenga main o app.
+configure_logging()
