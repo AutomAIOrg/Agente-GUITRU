@@ -27,8 +27,8 @@ class ProcessIncomingMessageUseCase:
             return None
 
         logger.debug(
-            "Mensaje recibido: user_id=%s content_length=%d", 
-            message.user_id, 
+            "Mensaje recibido: user_id=%s content_length=%d",
+            message.user_id,
             len(message.content) if message.content else 0
         )
 
