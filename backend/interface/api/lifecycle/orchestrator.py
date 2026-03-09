@@ -52,10 +52,10 @@ class Orchestrator:
         session = await self._db.get_session()
         try:
             message_repository: MessageRepository = SQLMessageRepository(db_session=session)
-            process_incoming_mesage_uc = ProcessIncomingMessageUseCase(
+            process_incoming_message_uc = ProcessIncomingMessageUseCase(
                 message_repository=message_repository
             )
-            await process_incoming_mesage_uc.execute(msg)
+            await process_incoming_message_uc.execute(msg)
             await session.commit()
         except Exception:
             await session.rollback()
