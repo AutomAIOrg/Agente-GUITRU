@@ -2,12 +2,12 @@ import asyncio
 import logging
 from contextlib import suppress
 
-from backend.application.dtos.whatsapp_incoming_message import WhatsappIncomingMessage
-from backend.application.interfaces.message_queue import MessageQueuePort
-from backend.application.use_cases.process_incoming_message import ProcessIncomingMessageUseCase
-from backend.domain.repositories.message_repository import MessageRepository
-from backend.infrastructure.persistence.adapters.base_sqlalchemy_adapter import DatabaseAdapter
-from backend.infrastructure.persistence.sql_message_repository import SQLMessageRepository
+from ....application.dtos.whatsapp_incoming_message import WhatsappIncomingMessage
+from ....application.interfaces.message_queue import MessageQueuePort
+from ....application.use_cases.process_incoming_message import ProcessIncomingMessageUseCase
+from ....domain.repositories.message_repository import MessageRepository
+from ....infrastructure.persistence.adapters.base_sqlalchemy_adapter import DatabaseAdapter
+from ....infrastructure.persistence.sql_message_repository import SQLMessageRepository
 
 logger = logging.getLogger("orchestrator")
 

@@ -2,8 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from backend.dependencies import get_db_adapter
-
+from ....dependencies import get_db_adapter
 from ...dependencies import get_queue_adapter
 from ..lifecycle.orchestrator import Orchestrator
 

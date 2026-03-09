@@ -47,7 +47,7 @@ pythonVersion = "3.13"
 typeCheckingMode = "standard"
 failOnWarnings = false
 
-include = ["backend"]
+include = ["."]
 exclude = [
   "**/__pycache__",
   ".venv",
