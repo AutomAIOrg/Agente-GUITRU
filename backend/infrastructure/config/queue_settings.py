@@ -19,7 +19,7 @@ class QueueSettings(BaseSettings):
 @lru_cache
 def get_queue_settings() -> QueueSettings:
     """
-    Devuelve una instancia cacheada de AgentSettings.
+    Devuelve una instancia cacheada de QueueSettings.
     Evita releer y parsear .env en cada request.
     """
     return QueueSettings()
