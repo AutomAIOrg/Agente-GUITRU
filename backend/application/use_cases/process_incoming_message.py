@@ -24,13 +24,10 @@ class ProcessIncomingMessageUseCase:
             role=Role.USER,
             content=message.content,
         )
-        print(message_processed)
         if not message_processed.is_valid:
             return None
 
         # 2. Guardar en BBDD
         await self.message_repository.save(message_processed)
-
-        print("saved")
 
         return message_processed
