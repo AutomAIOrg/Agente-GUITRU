@@ -29,9 +29,5 @@ class SQLMessageRepository(MessageRepository):
 
         self.db_session.add(db_message)
 
-        try:
-            await self.db_session.commit()
-
-        except Exception:
-            await self.db_session.rollback()
-            raise
+        # Validación de operación
+        await self.db_session.flush()
