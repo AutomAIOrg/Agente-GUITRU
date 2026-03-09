@@ -7,9 +7,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class WhatsappSettings(BaseSettings):
     """Settings del agente leídos desde variables de entorno."""
 
-    PHONE_NUMBER_ID: str = Field(default=None, description="ID del número de teléfono Cloud API")
+    PHONE_NUMBER_ID: str = Field(default=..., description="ID del número de teléfono Cloud API")
     WABA_ID: str = Field(default=..., description="")
-    ACCESS_TOKEN: SecretStr = Field(default=None, description="Token Cloud API (dev/prod)")
+    ACCESS_TOKEN: SecretStr = Field(default=..., description="Token Cloud API (dev/prod)")
     VERIFY_TOKEN: str = Field(default=..., description="Verify token del webhook")
     META_APP_SECRET: SecretStr = Field(
         default=..., description="Meta App Secret (para validar X-Hub-Signature-256)"
