@@ -1,9 +1,4 @@
-from collections.abc import AsyncGenerator
 from functools import lru_cache
-from typing import Annotated
-
-from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from .infrastructure.config.settings_db import get_settings_db
 from .infrastructure.persistence.adapters.database_adapter import DatabaseAdapter
@@ -19,17 +14,3 @@ def get_db_adapter() -> DatabaseAdapter:
         pool_size=settings.DB_POOL_SIZE,
         max_overflow=settings.DB_MAX_OVERFLOW,
     )
-
-
-async def get_db_session(
-    adapter: Annotated[DatabaseAdapter, Depends(get_db_adapter)],
-) -> AsyncGenerator[AsyncSession]:
-    session = await adapter.get_session()
-    try:
-        yield session
-        await session.commit()
-    except Exception:
-        await session.rollback()
-        raise
-    finally:
-        await session.close()
