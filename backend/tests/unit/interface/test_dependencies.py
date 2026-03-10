@@ -15,10 +15,9 @@ from backend.application.use_cases.process_incoming_message import ProcessIncomi
 from backend.infrastructure.adapters.calendar.google_calendar_adapter import GoogleCalendarAdapter
 from backend.infrastructure.adapters.llm.openai_adapter import OpenAIAdapter
 from backend.infrastructure.adapters.queue.asyncio_adapter import AsyncioQueueAdapter
-from backend.infrastructure.config.agent_settings import get_agent_settings
+from backend.infrastructure.config.agent_settings import AgentSettings
 from backend.infrastructure.config.calendar_settings import CalendarSettings
-from backend.infrastructure.config.llm_settings import get_llm_settings
-from backend.infrastructure.config.queue_settings import get_queue_settings
+from backend.infrastructure.config.llm_settings import LLMSettings
 from backend.infrastructure.persistence.sqlalchemy_unit_of_work import SQLAlchemyUnitOfWork
 from backend.interface import dependencies as deps
 from backend.interface.dependencies import (
@@ -52,18 +51,23 @@ def test_get_uow_factory(monkeypatch):
 
 
 def test_get_queue_adapter():
-    # Crear adaptador de la cola
-    queue_settings = get_queue_settings()
-    queue_adapter = AsyncioQueueAdapter(queue_settings)
+    # Mock QueueSettings
+    queue_adapter = AsyncioQueueAdapter(max_size=100)
 
     # Verificar que devuelve una instancia de AsyncioQueueAdapter
     assert isinstance(queue_adapter, AsyncioQueueAdapter)
 
 
 def test_get_llm_provider():
-    # Crear proveedor de LLM
-    llm_settings = get_llm_settings()
-    provider = get_llm_provider(llm_settings)
+    # Mock LLMSettings
+    mock_llm_settings = AsyncMock(
+        spec=LLMSettings(
+            API_KEY="test_api_key",
+            MODEL="test_model",
+            TIMEOUT_SECONDS=30,
+        )
+    )
+    provider = get_llm_provider(mock_llm_settings)
 
     # Verificar que devuelve una instancia de OpenAIAdapter
     assert isinstance(provider, OpenAIAdapter)
@@ -97,10 +101,14 @@ def test_get_tool_registry():
     assert isinstance(registry, ToolRegistry)
 
 
-def test_get_policies():
-    # Crear adaptador Policies
-    agent_settings = get_agent_settings()
-    policies = get_policies(agent_settings)
+def test_get_policies():  # Mock AgentSettings
+    mock_agent_settings = AsyncMock(
+        spec=AgentSettings(
+            MAX_ITERATIONS=2,
+            MAX_STEPS=8,
+        )
+    )
+    policies = get_policies(mock_agent_settings)
 
     # Verificar que devuelve una instancia de AgentPolicies
     assert isinstance(policies, AgentPolicies)
