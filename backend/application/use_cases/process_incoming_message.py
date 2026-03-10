@@ -1,45 +1,39 @@
 """
-Recupera el mensaje más antiguo en la cola de mensajes entrantes y lo procesa.
+Procesa un mensaje entrante de WhatsApp, lo transforma en una entidad de dominio
+y lo persiste de forma idempotente.
 """
 
-from asyncio import Queue
-from datetime import datetime
+from collections.abc import Callable
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from ...domain.entities.message import Message, Role
-from ...domain.repositories.message_repository import MessageRepository
+from ..dtos.whatsapp_incoming_message import WhatsappIncomingMessage
+from ..interfaces.unit_of_work import UnitOfWork
 
 
 class ProcessIncomingMessageUseCase:
-    def __init__(self, message_repository: MessageRepository, message_queue: Queue[Message]):
-        self.message_repository = message_repository
-        self.message_queue = message_queue
+    def __init__(self, uow_factory: Callable[[], UnitOfWork]):
+        self._uow_factory = uow_factory
 
-    async def execute(self) -> Message | None:
-        try:
-            # Recuperar el mensaje más antiguo en la cola
-            message = await self.message_queue.get()
-        except Exception:
-            # Manejar el caso en que no hay mensajes en la cola
+    async def execute(self, message: WhatsappIncomingMessage) -> Message | None:
+        # 1. Construir mensaje
+        message_processed = Message(
+            id=str(uuid4()),
+            user_id=message.from_phone,
+            provider_message_id=message.message_id,
+            timestamp=datetime.fromtimestamp(message.timestamp, tz=UTC),
+            role=Role.USER,
+            content=message.content,
+        )
+        if not message_processed.is_valid:
             return None
 
-        # Procesar el mensaje recuperado
-
-        # 1. Construir mensaje
-        if message:
-            message_processed = Message(
-                id=str(uuid4()),
-                user_id=message.user_id,
-                timestamp=datetime.now(),
-                role=Role.USER,
-                content=message.content,
-            )
-            if not message_processed.is_valid:
+        # 2. Guardar en BD
+        async with self._uow_factory() as uow:
+            saved = await uow.messages.save_if_new(message_processed)
+            if not saved:
                 return None
 
-            # 2. Guardar en BBDD
-            await self.message_repository.save(message_processed)
-
+            await uow.commit()
             return message_processed
-
-        return None

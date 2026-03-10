@@ -16,6 +16,7 @@ class Message:
 
     id: str
     user_id: str
+    provider_message_id: str
     timestamp: datetime
     role: Role
     content: str

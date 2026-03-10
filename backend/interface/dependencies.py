@@ -1,8 +1,8 @@
-from asyncio import Queue
+from collections.abc import Callable
+from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..application.agent.config.policies import AgentPolicies
 from ..application.agent.config.tool_registry import ToolRegistry
@@ -13,12 +13,11 @@ from ..application.agent.tools.tool_factory import build_tool_registry
 from ..application.agent.verifier import Verifier
 from ..application.interfaces.calendar import CalendarPort
 from ..application.interfaces.llm import LLMPort
+from ..application.interfaces.message_queue import MessageQueuePort
+from ..application.interfaces.unit_of_work import UnitOfWork
 from ..application.use_cases.generic_use_case import AgentGenericUseCase
 from ..application.use_cases.process_incoming_message import ProcessIncomingMessageUseCase
-from ..dependencies import get_db_session
-from ..domain.entities.message import Message
-from ..domain.repositories.message_repository import MessageRepository
-from ..domain.repositories.reservation_repository import ReservationRepository
+from ..dependencies import get_db_adapter
 from ..infrastructure.adapters.calendar.google_calendar_adapter import (
     GoogleCalendarAdapter,
     GoogleCalendarConfig,
@@ -28,24 +27,26 @@ from ..infrastructure.adapters.calendar.google_credentials import (
     GoogleCredentialProvider,
 )
 from ..infrastructure.adapters.llm.openai_adapter import OpenAIAdapter, OpenAIConfig
+from ..infrastructure.adapters.queue.asyncio_adapter import AsyncioQueueAdapter
 from ..infrastructure.config.agent_settings import AgentSettings, get_agent_settings
 from ..infrastructure.config.calendar_settings import CalendarSettings, get_calendar_settings
 from ..infrastructure.config.llm_settings import LLMSettings, get_llm_settings
-from ..infrastructure.persistence.sql_message_repository import SQLMessageRepository
-from ..infrastructure.persistence.sql_reservation_repository import SQLReservationRepository
+from ..infrastructure.config.queue_settings import get_queue_settings
+from ..infrastructure.persistence.sqlalchemy_unit_of_work import SQLAlchemyUnitOfWork
 
 
-# Repositories
-def get_message_repository(
-    db_session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> MessageRepository:
-    return SQLMessageRepository(db_session=db_session)
+# Unit of Work
+def get_uow_factory() -> Callable[[], UnitOfWork]:
+    db = get_db_adapter()
+    # Se devuelve una función nueva cada vez que se llama al factory
+    return lambda: SQLAlchemyUnitOfWork(db=db)
 
 
-def get_reservation_repository(
-    db_session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> ReservationRepository:
-    return SQLReservationRepository(db_session=db_session)
+# Queue
+@lru_cache
+def get_queue_adapter() -> MessageQueuePort:
+    settings = get_queue_settings()
+    return AsyncioQueueAdapter(max_size=settings.MAX_SIZE)
 
 
 # Agent - LLM
@@ -59,7 +60,7 @@ def get_llm_provider(llm_settings: Annotated[LLMSettings, Depends(get_llm_settin
 
 
 # Agent - Tools and policies
-def get_calendar_port(
+def get_calendar_adapter(
     calendar_settings: Annotated[CalendarSettings, Depends(get_calendar_settings)],
 ) -> CalendarPort:
     auth = GoogleCalendarAuthConfig(
@@ -78,9 +79,9 @@ def get_calendar_port(
 
 
 def get_tool_registry(
-    calendar_port: Annotated[CalendarPort, Depends(get_calendar_port)],
+    calendar_adapter: Annotated[CalendarPort, Depends(get_calendar_adapter)],
 ) -> ToolRegistry:
-    return build_tool_registry(calendar_port=calendar_port)
+    return build_tool_registry(calendar_port=calendar_adapter)
 
 
 def get_policies(
@@ -133,13 +134,13 @@ def get_agent_orchestrator(
 
 
 # Use Cases
-def get_process_incoming_message_uc(
-    message_repository: Annotated[MessageRepository, Depends(get_message_repository)],
-    message_queue: Annotated[Queue[Message], Depends(lambda: Queue[Message]())],
-) -> ProcessIncomingMessageUseCase:
+@lru_cache
+def get_process_incoming_message_uc() -> ProcessIncomingMessageUseCase:
+    """
+    Caso de uso stateless cuya dependencia es el factory que crea una UoW nueva en cada llamada.
+    """
     return ProcessIncomingMessageUseCase(
-        message_repository=message_repository,
-        message_queue=message_queue,
+        uow_factory=get_uow_factory(),
     )
 
 

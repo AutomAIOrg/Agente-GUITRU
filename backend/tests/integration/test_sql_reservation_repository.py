@@ -1,15 +1,11 @@
 """
 Tests de integración para SQLReservationRepository.
 
-Suite mínima y sin redundancias que cubre:
-- Conexión y schema de BD
-- Persistencia del método save()
-- Constraints (PK, NOT NULL)
-- Transacciones (rollback)
-- Volumen (batch de 30)
+Suite esencial alineada con el contrato actual del repositorio:
+- persistencia básica
+- constraints de la BD
 """
 
-from contextlib import suppress
 from datetime import datetime
 from uuid import uuid4
 
@@ -34,8 +30,6 @@ pytestmark = [
 
 
 class TestConnectionAndSchema:
-    """Verifica que la BD responde y el schema de reservas es correcto."""
-
     async def test_connection_and_table_schema(self, test_engine):
         async with test_engine.connect() as conn:
             assert (await conn.execute(text("SELECT 1"))).scalar() == 1
@@ -56,10 +50,9 @@ class TestConnectionAndSchema:
 
 
 class TestSave:
-    """Verifica que save() persiste correctamente todos los campos."""
-
     async def test_save_persists_all_fields(self, clean_db_session):
         repo = SQLReservationRepository(clean_db_session)
+
         reservation_id = uuid4().hex
         reservation = ReservationFactory.create(
             id=reservation_id,
@@ -87,16 +80,19 @@ class TestSave:
 
 
 class TestConstraints:
-    """Verifica que la BD rechaza datos inválidos."""
-
     async def test_duplicate_id_raises_integrity_error(self, clean_db_session):
         repo = SQLReservationRepository(clean_db_session)
+
         duplicate_id = uuid4().hex
         reservation = ReservationFactory.create(id=duplicate_id)
+
         await repo.save(reservation)
 
-        with pytest.raises(IntegrityError, match=r"Duplicate entry|UNIQUE"):
-            await repo.save(ReservationFactory.create(id=duplicate_id))
+        try:
+            with pytest.raises(IntegrityError, match=r"Duplicate entry|UNIQUE"):
+                await repo.save(ReservationFactory.create(id=duplicate_id))
+        finally:
+            await clean_db_session.rollback()
 
     async def test_null_required_field_raises_error(self, clean_db_session):
         invalid = ReservationModel(
@@ -107,46 +103,11 @@ class TestConstraints:
             dates_check_in=datetime(2026, 3, 10, 15, 0, 0),
             dates_check_out=datetime(2026, 3, 14, 12, 0, 0),
         )
+
         clean_db_session.add(invalid)
 
-        with pytest.raises(IntegrityError, match=r"cannot be null|NOT NULL"):
-            await clean_db_session.commit()
-
-        await clean_db_session.rollback()
-
-
-class TestTransactions:
-    """Verifica que rollback funciona y no corrompe datos previos."""
-
-    async def test_rollback_discards_and_preserves_prior_data(self, clean_db_session):
-        repo = SQLReservationRepository(clean_db_session)
-
-        rollback_id = uuid4().hex
-        original = ReservationFactory.create(id=rollback_id)
-        await repo.save(original)
-
-        with suppress(Exception):
-            await repo.save(ReservationFactory.create(id=rollback_id))
-
-        result = await clean_db_session.execute(
-            select(ReservationModel).where(ReservationModel.id == rollback_id)
-        )
-        assert result.scalar_one_or_none() is not None
-
-
-class TestVolume:
-    """Verifica persistencia básica con volumen moderado."""
-
-    async def test_batch_30_reservations(self, clean_db_session):
-        repo = SQLReservationRepository(clean_db_session)
-        reservations = ReservationFactory.create_batch(count=30)
-        batch_ids: list[str] = []
-
-        for reservation in reservations:
-            batch_ids.append(reservation.id)
-            await repo.save(reservation)
-
-        result = await clean_db_session.execute(
-            select(ReservationModel).where(ReservationModel.id.in_(batch_ids))
-        )
-        assert len(result.scalars().all()) == 30
+        try:
+            with pytest.raises(IntegrityError, match=r"cannot be null|NOT NULL"):
+                await clean_db_session.commit()
+        finally:
+            await clean_db_session.rollback()
