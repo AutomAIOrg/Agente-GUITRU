@@ -14,7 +14,7 @@ class MessagesModel(BaseModel):
     __tablename__ = "messages"
 
     user_id: Mapped[str] = MappedColumn(String(255), nullable=False)
-    provider_message_id: Mapped[str] = MappedColumn(String(255), nullable=False)
+    provider_message_id: Mapped[str] = MappedColumn(String(255), unique=True, nullable=False)
     timestamp: Mapped[datetime] = MappedColumn(DateTime, nullable=False)
     role: Mapped[str] = MappedColumn(String(50), nullable=False)
     content: Mapped[str] = MappedColumn(Text, nullable=False)
