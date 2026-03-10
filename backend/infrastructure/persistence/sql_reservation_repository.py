@@ -32,11 +32,4 @@ class SQLReservationRepository(ReservationRepository):
         )
 
         self.db_session.add(db_reservation)
-
-        try:
-            await self.db_session.commit()
-            await self.db_session.refresh(db_reservation)
-
-        except Exception:
-            await self.db_session.rollback()
-            raise
+        await self.db_session.flush()
