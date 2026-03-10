@@ -1,7 +1,6 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.application.agent.config.policies import AgentPolicies
 from backend.application.agent.config.tool_registry import ToolRegistry
@@ -13,7 +12,6 @@ from backend.application.interfaces.calendar import CalendarPort
 from backend.application.interfaces.llm import LLMPort
 from backend.application.use_cases.generic_use_case import AgentGenericUseCase
 from backend.application.use_cases.process_incoming_message import ProcessIncomingMessageUseCase
-from backend.domain.repositories.message_repository import MessageRepository
 from backend.infrastructure.adapters.calendar.google_calendar_adapter import GoogleCalendarAdapter
 from backend.infrastructure.adapters.llm.openai_adapter import OpenAIAdapter
 from backend.infrastructure.adapters.queue.asyncio_adapter import AsyncioQueueAdapter
@@ -21,19 +19,16 @@ from backend.infrastructure.config.agent_settings import get_agent_settings
 from backend.infrastructure.config.calendar_settings import CalendarSettings
 from backend.infrastructure.config.llm_settings import get_llm_settings
 from backend.infrastructure.config.queue_settings import get_queue_settings
-from backend.infrastructure.persistence.sql_message_repository import SQLMessageRepository
-from backend.infrastructure.persistence.sql_reservation_repository import SQLReservationRepository
+from backend.infrastructure.persistence.sqlalchemy_unit_of_work import SQLAlchemyUnitOfWork
+from backend.interface import dependencies as deps
 from backend.interface.dependencies import (
     get_agent_orchestrator,
     get_calendar_adapter,
     get_executor,
     get_generic_uc,
     get_llm_provider,
-    get_message_repository,
     get_planner,
     get_policies,
-    get_process_incoming_message_uc,
-    get_reservation_repository,
     get_tool_registry,
     get_verifier,
 )
@@ -43,28 +38,17 @@ pytestmark = [
 ]
 
 
-def test_get_message_repository():
-    # Mock AsyncSession
-    mock_session = AsyncMock(spec=AsyncSession)
+def test_get_uow_factory(monkeypatch):
+    fake_db = object()
+    monkeypatch.setattr(deps, "get_db_adapter", lambda: fake_db)
 
-    # Llamar a la función
-    repository = get_message_repository(mock_session)
+    factory = deps.get_uow_factory()
+    uow = factory()
 
-    # Verificar que devuelve una instancia de SQLMessageRepository
-    assert isinstance(repository, SQLMessageRepository)
-    assert repository.db_session == mock_session
-
-
-def test_get_reservation_repository():
-    # Mock AsyncSession
-    mock_session = AsyncMock(spec=AsyncSession)
-
-    # Llamar a la función
-    repository = get_reservation_repository(mock_session)
-
-    # Verificar que devuelve una instancia de SQLReservationRepository
-    assert isinstance(repository, SQLReservationRepository)
-    assert repository.db_session == mock_session
+    # Check returns callable that builds SQLAlchemyUnitOfWork
+    assert callable(factory)
+    assert isinstance(uow, SQLAlchemyUnitOfWork)
+    assert uow._db is fake_db
 
 
 def test_get_queue_adapter():
@@ -172,18 +156,21 @@ def test_get_agent_orchestrator():
     assert isinstance(orchestrator, AgentOrchestrator)
 
 
-def test_get_process_incoming_message_uc():
-    # Mock dependencias
-    mock_message_repository = AsyncMock(spec=MessageRepository)
+def test_get_process_incoming_message_uc(monkeypatch):
+    fake_factory = MagicMock()
+    monkeypatch.setattr(deps, "get_uow_factory", lambda: fake_factory)
 
-    # Llamar a la función
-    use_case = get_process_incoming_message_uc(
-        message_repository=mock_message_repository,
-    )
+    deps.get_process_incoming_message_uc.cache_clear()
 
-    # Verificar que devuelve una instancia de ProcessIncomingMessageUseCase
-    assert isinstance(use_case, ProcessIncomingMessageUseCase)
-    assert use_case.message_repository == mock_message_repository
+    uc1 = deps.get_process_incoming_message_uc()
+    uc2 = deps.get_process_incoming_message_uc()
+
+    # Verifica que el provider devuelve tipo esperado y objetos idénticos (ya que estaban cacheados)
+    assert isinstance(uc1, ProcessIncomingMessageUseCase)
+    assert uc1 is uc2
+    assert uc1._uow_factory is fake_factory
+
+    deps.get_process_incoming_message_uc.cache_clear()
 
 
 def test_get_generic_uc():
